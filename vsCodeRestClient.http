@@ -1,11 +1,15 @@
 GET http://localhost:8000/api/room_types
 
+
 ###
-POST http://localhost:8000/api/room_type?
+GET http://localhost:8000/api/room_type/4
+
+###
+POST http://localhost:8000/api/room_type?type='beta'
 
 
 ###
-PUT http://localhost:8000/api/room_type/2?type=double
+PUT http://localhost:8000/api/room_type/7?type='delta'
 
 ###
-DELETE http://localhost:8000/api/room_type/2
+DELETE http://localhost:8000/api/room_type/7
