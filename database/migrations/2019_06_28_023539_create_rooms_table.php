@@ -27,7 +27,7 @@ class CreateRoomsTable extends Migration
                 ->onDelete('cascade');
 
             $table->string('name');
-            $table->string('image');
+            $table->string('image')->nullable();
             
             $table->timestamps();
         });
