@@ -1,12 +1,12 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Http\Requests;
 use Illuminate\Http\Request;
 
 use App\Http\Resources\RoomTypeResource;
 use App\RoomType;
 
+use Illuminate\Support\Facades\Validator;
 
 
 class RoomTypeController extends Controller
@@ -34,10 +34,15 @@ class RoomTypeController extends Controller
     public function store(Request $request)
 
     {
-        $record = new RoomType;
+        $validator=Validator::make($request->input(), [
+            'type' => 'required|min:2',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()])->setStatusCode(400);
+        }        
 
+        $record = new RoomType;
         $record->type = $request->input('type');
-        
         $record->save();
 
         return new RoomTypeResource($record);
@@ -54,9 +59,16 @@ class RoomTypeController extends Controller
     public function show($id)
 
     {
-         $article = RoomType::find($id); //id comes from route
-        if( $article ){
-            return new RoomTypeResource($article);
+        $validator=Validator::make(['id'=>$id],[
+            'id' => 'required|integer',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()])->setStatusCode(400);
+        }  
+
+        $record = RoomType::find($id); //id comes from route
+        if( $record ){
+            return new RoomTypeResource($record);
         }
         return "RoomType Not found"; // temporary error
 
@@ -72,10 +84,16 @@ class RoomTypeController extends Controller
 
     public function update(Request $request, $id)
     {
+        $validator=Validator::make(array_add($request->input(),'id',$id), [
+            'id' => 'required|integer',
+            'type' => 'required|min:2',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()])->setStatusCode(400);
+        }
+
         $record = RoomType::find($id);
-
         $record->type = $request->input('type');
-
         $record->save();
 
         return new RoomTypeResource($record);
@@ -91,6 +109,14 @@ class RoomTypeController extends Controller
 
     public function destroy($id)
     {
+
+        $validator=Validator::make(['id'=>$id],[
+            'id' => 'required|integer',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()])->setStatusCode(400);
+        }  
+
         $record = RoomType::findOrfail($id);
         if($record->delete()){
             return  new RoomTypeResource($record);
@@ -99,4 +125,3 @@ class RoomTypeController extends Controller
     }
 
 }
-

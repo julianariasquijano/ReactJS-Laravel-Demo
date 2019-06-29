@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Http\Requests;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 
 use App\Http\Resources\PriceResource;
@@ -34,6 +34,16 @@ class PriceController extends Controller
     public function store(Request $request)
 
     {
+
+        $validator=Validator::make($request->input(), [
+            'prince' => 'required|integer',
+            'hotel_id' => 'required|integer',
+            'room_type_id' => 'required|integer',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()])->setStatusCode(400);
+        }
+
         $record = new Price;
 
         $record->hotel_id = $request->input('hotel_id');
@@ -56,9 +66,17 @@ class PriceController extends Controller
     public function show($id)
 
     {
-         $article = Price::find($id); //id comes from route
-        if( $article ){
-            return new PriceResource($article);
+
+        $validator=Validator::make(['id'=>$id],[
+            'id' => 'required|integer',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()])->setStatusCode(400);
+        }  
+
+         $record = Price::find($id); //id comes from route
+        if( $record ){
+            return new PriceResource($record);
         }
         return "Price Not found"; // temporary error
 
@@ -74,6 +92,16 @@ class PriceController extends Controller
 
     public function update(Request $request, $id)
     {
+        $validator=Validator::make(array_add($request->input(),'id',$id), [
+            'id' => 'required|integer',
+            'price' => 'required|integer',
+            'hotel_id' => 'required|integer',
+            'room_type_id' => 'required|integer',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()])->setStatusCode(400);
+        }
+
         $record = Price::find($id);
 
         $record->hotel_id = $request->input('hotel_id');
@@ -95,6 +123,14 @@ class PriceController extends Controller
 
     public function destroy($id)
     {
+
+        $validator=Validator::make(['id'=>$id],[
+            'id' => 'required|integer',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()])->setStatusCode(400);
+        }  
+
         $record = Price::findOrfail($id);
         if($record->delete()){
             return  new PriceResource($record);

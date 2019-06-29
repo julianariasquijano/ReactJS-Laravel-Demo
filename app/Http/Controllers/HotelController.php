@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Http\Requests;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 
 use App\Http\Resources\HotelResource;
@@ -34,6 +34,14 @@ class HotelController extends Controller
     public function store(Request $request)
 
     {
+
+        $validator=Validator::make($request->input(), [
+            'name' => 'required|min:2',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()])->setStatusCode(400);
+        }   
+
         $record = new Hotel;
 
         $record->name = $request->input('name');
@@ -61,9 +69,17 @@ class HotelController extends Controller
     public function show($id)
 
     {
-         $article = Hotel::find($id); //id comes from route
-        if( $article ){
-            return new HotelResource($article);
+
+        $validator=Validator::make(['id'=>$id],[
+            'id' => 'required|integer',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()])->setStatusCode(400);
+        }  
+
+         $record = Hotel::find($id); //id comes from route
+        if( $record ){
+            return new HotelResource($record);
         }
         return "Hotel Not found"; // temporary error
 
@@ -79,6 +95,15 @@ class HotelController extends Controller
 
     public function update(Request $request, $id)
     {
+
+        $validator=Validator::make(array_add($request->input(),'id',$id), [
+            'id' => 'required|integer',
+            'name' => 'required|min:2',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()])->setStatusCode(400);
+        }
+
         $record = Hotel::find($id);
 
         $record->name = $request->input('name');
@@ -105,6 +130,14 @@ class HotelController extends Controller
 
     public function destroy($id)
     {
+
+        $validator=Validator::make(['id'=>$id],[
+            'id' => 'required|integer',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()])->setStatusCode(400);
+        }  
+
         $record = Hotel::findOrfail($id);
         if($record->delete()){
             return  new HotelResource($record);

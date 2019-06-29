@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Http\Requests;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 
 use App\Http\Resources\RoomResource;
@@ -34,6 +34,15 @@ class RoomController extends Controller
     public function store(Request $request)
 
     {
+        $validator=Validator::make($request->input(), [
+            'name' => 'required|min:2',
+            'hotel_id' => 'required|integer',
+            'room_type_id' => 'required|integer',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()])->setStatusCode(400);
+        } 
+
         $record = new Room;
 
         $record->hotel_id = $request->input('hotel_id');
@@ -57,9 +66,17 @@ class RoomController extends Controller
     public function show($id)
 
     {
-         $article = Room::find($id); //id comes from route
-        if( $article ){
-            return new RoomResource($article);
+
+        $validator=Validator::make(['id'=>$id],[
+            'id' => 'required|integer',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()])->setStatusCode(400);
+        }  
+
+         $record = Room::find($id); //id comes from route
+        if( $record ){
+            return new RoomResource($record);
         }
         return "Room Not found"; // temporary error
 
@@ -75,6 +92,17 @@ class RoomController extends Controller
 
     public function update(Request $request, $id)
     {
+
+        $validator=Validator::make(array_add($request->input(),'id',$id), [
+            'id' => 'required|integer',
+            'name' => 'required|min:2',
+            'hotel_id' => 'required|integer',
+            'room_type_id' => 'required|integer',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()])->setStatusCode(400);
+        }
+
         $record = Room::find($id);
 
         $record->hotel_id = $request->input('hotel_id');
@@ -97,6 +125,14 @@ class RoomController extends Controller
 
     public function destroy($id)
     {
+
+        $validator=Validator::make(['id'=>$id],[
+            'id' => 'required|integer',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()])->setStatusCode(400);
+        }  
+
         $record = Room::findOrfail($id);
         if($record->delete()){
             return  new RoomResource($record);

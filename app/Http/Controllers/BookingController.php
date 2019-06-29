@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Http\Requests;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 
 use App\Http\Resources\BookingResource;
@@ -34,6 +34,20 @@ class BookingController extends Controller
     public function store(Request $request)
 
     {
+
+        $validator=Validator::make($request->input(), [
+            'room_id' => 'required|integer',
+            'date_start' => 'required',
+            'date_end' => 'required',
+            'customer_name' => 'required|min:2',
+            'customer_email' => 'required',
+            'total_nights' => 'required|integer',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()])->setStatusCode(400);
+        }
+
+
         $record = new Booking;
 
         $record->room_id = $request->input('room_id');
@@ -60,9 +74,17 @@ class BookingController extends Controller
     public function show($id)
 
     {
-         $article = Booking::find($id); //id comes from route
-        if( $article ){
-            return new BookingResource($article);
+
+        $validator=Validator::make(['id'=>$id],[
+            'id' => 'required|integer',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()])->setStatusCode(400);
+        }
+
+         $record = Booking::find($id); //id comes from route
+        if( $record ){
+            return new BookingResource($record);
         }
         return "Booking Not found"; // temporary error
 
@@ -78,6 +100,20 @@ class BookingController extends Controller
 
     public function update(Request $request, $id)
     {
+
+        $validator=Validator::make(array_add($request->input(),'id',$id), [
+            'id' => 'required|integer',
+            'room_id' => 'required|integer',
+            'date_start' => 'required',
+            'date_end' => 'required',
+            'customer_name' => 'required|min:2',
+            'customer_email' => 'required',
+            'total_nights' => 'required|integer',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()])->setStatusCode(400);
+        }
+
         $record = Booking::find($id);
         
         $record->room_id = $request->input('room_id');
@@ -103,6 +139,14 @@ class BookingController extends Controller
 
     public function destroy($id)
     {
+
+        $validator=Validator::make(['id'=>$id],[
+            'id' => 'required|integer',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()])->setStatusCode(400);
+        }  
+
         $record = Booking::findOrfail($id);
         if($record->delete()){
             return  new BookingResource($record);
