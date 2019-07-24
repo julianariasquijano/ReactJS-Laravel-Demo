@@ -1,36 +1,38 @@
 {
-  "name": "belleExamples",
-  "version": "3.0.2",
-  "description": "Playground for using & developing Belle components",
-  "author": {
-    "name": "Nik Graf",
-    "email": "nik@nikgraf.com",
-    "url": "http://www.nikgraf.com"
-  },
-  "main": "js/app.jsx",
-  "repository": {
-    "type": "git",
-    "url": "http://github.com/nikgraf/belle.git"
-  },
+  "name": "react_test",
+  "version": "0.1.0",
+  "private": true,
   "dependencies": {
-    "react": "=15.4.1",
-    "react-addons-linked-state-mixin": "^15.4.1",
-    "react-dom": "^15.4.1",
-    "underscore": "=1.8.3"
-  },
-  "devDependencies": {
-    "babel-core": "^6.7.4",
-    "babel-loader": "^6.2.4",
-    "eslint": "^2.5.3",
-    "eslint-config-airbnb": "^6.2.0",
-    "eslint-plugin-react": "^4.2.3",
-    "express": "^4.13.4",
-    "node-libs-browser": "^1.0.0",
-    "react-transform-catch-errors": "^1.0.2",
-    "redbox-react": "^1.2.2",
-    "webpack": "^1.12.14"
+    "@date-io/dayjs": "^1.3.8",
+    "@date-io/moment": "^1.3.8",
+    "@material-ui/core": "^4.2.0",
+    "@material-ui/icons": "^4.2.1",
+    "@material-ui/pickers": "^3.1.2",
+    "dayjs": "^1.8.15",
+    "moment": "^2.24.0",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-scripts": "3.0.1"
   },
   "scripts": {
-    "start": "node server.js"
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }
