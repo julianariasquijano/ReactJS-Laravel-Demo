@@ -1,12 +1,11 @@
 import React from 'react';
-import './App.css';
 
-function App() {
+function Booking() {
   return (
     <div>
-    ---
+    booking
     </div>
   );
 }
 
-export default App;
+export default Booking;
