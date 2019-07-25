@@ -6,6 +6,9 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
 
+import Hotels from './Hotels'
+import RoomTypes from './RoomTypes'
+
 //Seting tabs basic functionality
 function TabContainer(props) {
   return (
@@ -42,8 +45,8 @@ export default function Admin() {
           <Tab label="Room Types" />
         </Tabs>
       </AppBar>
-      {value === 0 && <TabContainer>H Lists</TabContainer>}
-      {value === 1 && <TabContainer>RT List</TabContainer>}
+      {value === 0 && <TabContainer> <Hotels></Hotels> </TabContainer>}
+      {value === 1 && <TabContainer> <RoomTypes></RoomTypes> </TabContainer>}
     </div>
   );
 }
