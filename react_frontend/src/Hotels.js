@@ -34,14 +34,24 @@ class Hotels extends Component {
             detailsOpened:true,
         })
     }
+    closeDetails = () => {
+        this.setState({
+            detailsOpened:false,
+        })
+    }
 
     render(){
 
-        let paper = {
+        let detailsClass = {
+            top: '50px',
+            left: '30px',
             position: 'absolute',
-            width: 400,
+            width: '90%',
+            heigh: '90%',
             border: '2px solid #000',
+            borderRadius: '5px',
             outline: 'none',
+            backgroundColor:'white'
           }
 
         return (
@@ -77,9 +87,9 @@ class Hotels extends Component {
                         </TableBody>
                     </Table>
                 </Paper>
-                <Modal open={this.state.detailsOpened} style={paper} >
-                    <div  >
-                        <h1>test</h1>
+                <Modal open={this.state.detailsOpened} onClose={this.closeDetails}  >
+                    <div style={detailsClass}>
+                    Content
                     </div>
                 </Modal>          
             </div>
