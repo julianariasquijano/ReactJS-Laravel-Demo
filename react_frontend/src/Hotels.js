@@ -18,13 +18,13 @@ import EditIcon from '@material-ui/icons/Edit';
 
 import TextField from '@material-ui/core/TextField';
 
-function ObjectMap(id,name,phone,address,city,state,country,zipCode,email) {
-  return { id,name, phone,address,city,state,country,zipCode,email };
+function ObjectMap(position,id,name,phone,address,city,state,country,zipCode,email) {
+  return { position,id,name, phone,address,city,state,country,zipCode,email };
 }
 
-const rows = [
-    ObjectMap(1,'Cameron', '23452345','las',' df ','asdf ',' asf','asfd ','as f'),
-    ObjectMap(2,'Hilton', '768769','qwer','qwer','er','req','qre','ee')
+let rows = [
+    ObjectMap(0,15,'Cameron', '23452345','las',' df ','asdf ',' asf','asfd ','as f'),
+    ObjectMap(1,26,'Hilton', '768769','qwer','qwer','er','req','qre','ee')
 ];
 
 let actualData={}
@@ -39,15 +39,19 @@ class Hotels extends Component {
 
     }
 
+    updateInputValue = function (event) {
+        event.persist()
+        actualData[event.target.name]= event.target.value
+    }
     openDetails = () => {
-        actualData= {}
+        actualData= {id:0}
         this.setState({
             detailsOpened:true,
         })
     }
 
     openDetailsWithRow = (row) => {
-        actualData = row
+        actualData = JSON.parse(JSON.stringify(row))
         this.setState({
             detailsOpened:true,
         })
@@ -58,9 +62,24 @@ class Hotels extends Component {
         })
     }
 
+    saveRow = () => {
+        if(actualData.id ===0){
+            actualData.position = rows.length
+            actualData.id = actualData.position
+            rows.push(actualData)
+        }
+        else {
+            rows[actualData.position] = JSON.parse(JSON.stringify(actualData))
+        }
+
+        this.setState({
+            detailsOpened:false,
+        })
+        this.closeDetails()
+    }
+
 
     render(){
-
 
         let classes = makeStyles(theme => ({
             button: {
@@ -102,7 +121,7 @@ class Hotels extends Component {
                         </TableHead>
                         <TableBody>
                             {rows.map(row => (
-                            <TableRow key={row.id}>
+                            <TableRow key={row.position}>
                                 <TableCell component="th" scope="row">
                                     {row.name}
                                 </TableCell>
@@ -123,42 +142,43 @@ class Hotels extends Component {
                 </Paper>
                 <Dialog open={this.state.detailsOpened} onClose={this.closeDetails}  >
                     <DialogContent>
-                    <h3>Hotel Details</h3>
-                    <span className='controlWraperStyle'  >
-                        <Button variant="contained" color="primary" onClick={this.closeDetails}>
-                            Save
-                        </Button>
-                    </span>
-                    <span className='controlWraperStyle' >
-                        <Button size="small" variant="contained" color="secondary" onClick={this.closeDetails} >
-                            Cancel
-                        </Button>
-                    </span>                  
-                    <br/>
-                    <span className="controlWraperStyle" >
-                        <TextField id='name' label="Name" variant="outlined" value={actualData.name} />
-                    </span>
-                    <span className="controlWraperStyle" >
-                        <TextField label="Address" variant="outlined" value={actualData.address} />
-                    </span>
-                    <span className="controlWraperStyle" >
-                        <TextField label="City" variant="outlined" value={actualData.city} />
-                    </span>
-                    <span className="controlWraperStyle" >
-                        <TextField label="State" variant="outlined" value={actualData.state} />
-                    </span>
-                    <span className="controlWraperStyle" >
-                        <TextField label="Country" variant="outlined" value={actualData.country} />
-                    </span>
-                    <span className="controlWraperStyle" >
-                        <TextField label="Zip Code" variant="outlined" value={actualData.zipCode} />
-                    </span>
-                    <span className="controlWraperStyle" >
-                        <TextField label="Phone" variant="outlined" value={actualData.phone} />
-                    </span>
-                    <span className="controlWraperStyle" >
-                        <TextField label="E-Mail" variant="outlined" value={actualData.email} />
-                    </span>
+                        <h3>Hotel Details</h3>
+                        <span className='controlWraperStyle'  >
+                            <Button variant="contained" color="primary" onClick={this.saveRow}>
+                                Save
+                            </Button>
+                        </span>
+                        <span className='controlWraperStyle' >
+                            <Button size="small" variant="contained" color="secondary" onClick={this.closeDetails} >
+                                Cancel
+                            </Button>
+                        </span>                  
+                        <br/>
+
+                        <span className="controlWraperStyle" >
+                            <TextField inputProps={{name:'name'}}  label="Name" variant="outlined" defaultValue={actualData.name} onChange={this.updateInputValue} />
+                        </span>
+                        <span className="controlWraperStyle" >
+                            <TextField label="Address" variant="outlined" defaultValue={actualData.address} />
+                        </span>
+                        <span className="controlWraperStyle" >
+                            <TextField label="City" variant="outlined" defaultValue={actualData.city} />
+                        </span>
+                        <span className="controlWraperStyle" >
+                            <TextField label="State" variant="outlined" defaultValue={actualData.state} />
+                        </span>
+                        <span className="controlWraperStyle" >
+                            <TextField label="Country" variant="outlined" defaultValue={actualData.country} />
+                        </span>
+                        <span className="controlWraperStyle" >
+                            <TextField label="Zip Code" variant="outlined" defaultValue={actualData.zipCode} />
+                        </span>
+                        <span className="controlWraperStyle" >
+                            <TextField inputProps={{name:'phone'}} label="Phone" variant="outlined" defaultValue={actualData.phone} onChange={this.updateInputValue} />
+                        </span>
+                        <span className="controlWraperStyle" >
+                            <TextField label="E-Mail" variant="outlined" defaultValue={actualData.email} />
+                        </span>
 
                     </DialogContent>
                 </Dialog>          
