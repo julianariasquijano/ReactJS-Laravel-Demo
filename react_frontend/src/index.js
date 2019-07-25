@@ -6,6 +6,8 @@ import Admin from './Admin';
 import Booking from './Booking';
 import * as serviceWorker from './serviceWorker';
 
+window.debugVar =''
+
 const routing = (
     <Router>
       <div>
