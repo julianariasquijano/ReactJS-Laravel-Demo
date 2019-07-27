@@ -24,6 +24,7 @@ import TextField from '@material-ui/core/TextField';
 const API = 'http://localhost:8000/api';
 
 let actualData={}
+let lastRowIdUpdated=0
 
 class Hotels extends Component {
 
@@ -88,12 +89,19 @@ class Hotels extends Component {
             url += '/'+ actualData.id
         } 
 
+        this.setState({loadingData:true})
+
         console.log(actualData)
         url += '?' + Object.keys(actualData)
           .map(key => `${key}=${actualData[key].toString()}`)
           .join('&');
 
         fetch(url, {method: method})
+            .then(response => response.json())
+            .then(jsonObject => {
+            //lastRowIdUpdated is used to correctly edit a recently created row
+            lastRowIdUpdated=jsonObject.data.id
+            this.setState({loadingData:false})})        
             .then(response => this.saveRow())      
     }
 
@@ -101,7 +109,7 @@ class Hotels extends Component {
         let tempRows = JSON.parse(JSON.stringify(this.state.rows))
         if(actualData.id ===0){
             actualData.position = this.state.rows.length
-            actualData.id = actualData.position
+            actualData.id = lastRowIdUpdated
             tempRows.push(actualData)
         }
         else {
@@ -153,6 +161,12 @@ class Hotels extends Component {
                     <AddIcon className={clsx(classes.button, classes.iconSmall)} />
                 </Fab>
                 )}
+                { this.state.loadingData && (
+                    <div>
+                        <br/>
+                        <CircularProgress className={classes.progress} ></CircularProgress>
+                    </div>
+                )}
                 <br/>
                 <br/>
                 <Paper >
@@ -186,12 +200,6 @@ class Hotels extends Component {
                     </Table>
                 </Paper>
 
-                { this.state.loadingData && (
-                    <div>
-                        <br/>
-                        <center><CircularProgress className={classes.progress} ></CircularProgress></center>
-                    </div>
-                )}
                 { this.state.connectionError && (
                     <div>
                         <Snackbar
