@@ -21,7 +21,7 @@ import EditIcon from '@material-ui/icons/Edit';
 
 import TextField from '@material-ui/core/TextField';
 
-const API = 'http://localhost:8000/api';
+import Config from './Config'
 
 let actualData={}
 let lastRowIdUpdated=0
@@ -44,7 +44,7 @@ class Hotels extends Component {
     }
 
     componentWillMount() {
-        fetch(API + '/hotels')
+        fetch(Config.api + '/hotels')
           .then(response => response.json())
           .then(jsonObject => {
             //Asigning each element the position in array, in order to facilitate the automatic edition  
@@ -143,7 +143,7 @@ class Hotels extends Component {
         if(!this.validateForm())return
 
         let method='POST'
-        let url = API + '/hotel'
+        let url = Config.api + '/hotel'
         if(actualData.id !==0){
             method = 'PUT'
             url += '/'+ actualData.id
