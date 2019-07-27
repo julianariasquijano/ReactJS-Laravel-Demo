@@ -25,6 +25,7 @@ const API = 'http://localhost:8000/api';
 
 let actualData={}
 let lastRowIdUpdated=0
+let validationMessages={}
 
 class Hotels extends Component {
 
@@ -35,6 +36,9 @@ class Hotels extends Component {
             loadingData:true,
             rows:[],
             detailsOpened:false,
+            validationMessages:{}
+            //validationMessages:JSON.parse(JSON.stringify(validationMessages))
+
         }
 
     }
@@ -76,12 +80,68 @@ class Hotels extends Component {
         })
     }
     closeDetails = () => {
+        this.resetValidationMessages()
         this.setState({
             detailsOpened:false,
         })
     }
+    resetValidationMessages = () => {
+        validationMessages = {
+            name:'',
+            address:'',
+            city:'',
+            state:'',
+            country:'',
+            zip_code:'',
+            phone:'',
+            email:'',
+        }
+        this.setState({
+            validationMessages:validationMessages,
+        })
+    }
+    validateForm = () => {
+        let validationResult = true
+        this.resetValidationMessages()
+        if(actualData.name === undefined || actualData.name === null || actualData.name ===''){
+            validationResult = false;
+            validationMessages.name='Required'
+        }
+        if(actualData.address === undefined || actualData.address === null || actualData.address ===''){
+            validationResult = false;
+            validationMessages.address='Required'
+        }
+        if(actualData.city === undefined || actualData.city === null || actualData.city ===''){
+            validationResult = false;
+            validationMessages.city='Required'
+        }
+        if(actualData.state === undefined || actualData.state === null || actualData.state ===''){
+            validationResult = false;
+            validationMessages.state='Required'
+        }
+        if(actualData.country === undefined || actualData.country === null || actualData.country ===''){
+            validationResult = false;
+            validationMessages.country='Required'
+        }
+        if(actualData.zip_code === undefined || actualData.zip_code === null || actualData.zip_code ===''){
+            validationResult = false;
+            validationMessages.zip_code='Required'
+        }
+        if(actualData.phone === undefined || actualData.phone === null || actualData.phone ===''){
+            validationResult = false;
+            validationMessages.phone='Required'
+        }
+        if(actualData.email === undefined || actualData.email === null || actualData.email ===''){
+            validationResult = false;
+            validationMessages.email='Required'
+        }
+        this.setState({validationMessages : validationMessages}) ;
+        return validationResult
+    }
 
     saveRowRemote = () => {
+        if(!this.validateForm())return
+
         let method='POST'
         let url = API + '/hotel'
         if(actualData.id !==0){
@@ -91,7 +151,6 @@ class Hotels extends Component {
 
         this.setState({loadingData:true})
 
-        console.log(actualData)
         url += '?' + Object.keys(actualData)
           .map(key => `${key}=${actualData[key].toString()}`)
           .join('&');
@@ -126,28 +185,6 @@ class Hotels extends Component {
 
     render(){
 
-        let classes = makeStyles(theme => ({
-            button: {
-              margin: theme.spacing(1),
-            },
-            leftIcon: {
-              marginRight: theme.spacing(1),
-            },
-            rightIcon: {
-              marginLeft: theme.spacing(1),
-            },
-            iconSmall: {
-              fontSize: 20,
-            },
-            progress: {
-                margin: theme.spacing(2),
-            }, 
-            error: {
-                backgroundColor:'red',
-            },                       
-          }));
-
-
         return (
             <div>
                 <span style={{fontSize:'30px',fontWeight:'bold'}}>HOTELS</span>
@@ -158,13 +195,13 @@ class Hotels extends Component {
                     color='primary' 
                     onClick={this.openDetails} 
                 >
-                    <AddIcon className={clsx(classes.button, classes.iconSmall)} />
+                    <AddIcon />
                 </Fab>
                 )}
                 { this.state.loadingData && (
                     <div>
                         <br/>
-                        <CircularProgress className={classes.progress} ></CircularProgress>
+                        <CircularProgress></CircularProgress>
                     </div>
                 )}
                 <br/>
@@ -191,7 +228,7 @@ class Hotels extends Component {
                                         color='primary' 
                                         onClick={() => {this.openDetailsWithRow(row)}} 
                                     >
-                                        <EditIcon className={clsx(classes.button, classes.iconSmall)} />
+                                        <EditIcon/>
                                     </Fab>
                                 </TableCell>
                             </TableRow>
@@ -238,27 +275,35 @@ class Hotels extends Component {
                         <br/>
 
                         <span className="controlWraperStyle" >
+                            <div className='errorMessages' >{this.state.validationMessages.name}</div>
                             <TextField inputProps={{name:'name'}}  label="Name" variant="outlined" defaultValue={actualData.name} onChange={this.updateInputValue} />
                         </span>
                         <span className="controlWraperStyle" >
+                            <div className='errorMessages' >{this.state.validationMessages.address}</div>
                             <TextField inputProps={{name:'address'}} label="Address" variant="outlined" defaultValue={actualData.address} onChange={this.updateInputValue} />
                         </span>
                         <span className="controlWraperStyle" >
+                            <div className='errorMessages' >{this.state.validationMessages.city}</div>
                             <TextField inputProps={{name:'city'}} label="City" variant="outlined" defaultValue={actualData.city} onChange={this.updateInputValue} />
                         </span>
                         <span className="controlWraperStyle" >
+                            <div className='errorMessages' >{this.state.validationMessages.state}</div>
                             <TextField inputProps={{name:'state'}} label="State" variant="outlined" defaultValue={actualData.state} onChange={this.updateInputValue} />
                         </span>
                         <span className="controlWraperStyle" >
+                            <div className='errorMessages' >{this.state.validationMessages.country}</div>
                             <TextField inputProps={{name:'country'}} label="Country" variant="outlined" defaultValue={actualData.country} onChange={this.updateInputValue} />
                         </span>
                         <span className="controlWraperStyle" >
+                        <div className='errorMessages' >{this.state.validationMessages.zip_code}</div>
                             <TextField inputProps={{name:'zip_code'}} label="Zip Code" variant="outlined" defaultValue={actualData.zip_code} onChange={this.updateInputValue} />
                         </span>
                         <span className="controlWraperStyle" >
+                            <div className='errorMessages' >{this.state.validationMessages.phone}</div>
                             <TextField inputProps={{name:'phone'}} label="Phone" variant="outlined" defaultValue={actualData.phone} onChange={this.updateInputValue} />
                         </span>
                         <span className="controlWraperStyle" >
+                            <div className='errorMessages' >{this.state.validationMessages.email}</div>
                             <TextField inputProps={{name:'email'}} label="E-Mail" variant="outlined" defaultValue={actualData.email} onChange={this.updateInputValue} />
                         </span>
 

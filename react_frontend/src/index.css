@@ -2,3 +2,9 @@
     margin:7px;
     display: inline-block;
 }
+
+.errorMessages{
+    color:red;
+    font-size: small;
+    padding-bottom: 7px
+}
