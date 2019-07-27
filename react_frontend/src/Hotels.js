@@ -2,6 +2,9 @@
 import React,{Component} from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import Snackbar from '@material-ui/core/Snackbar';
+import SnackbarContent from '@material-ui/core/SnackbarContent';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -18,14 +21,7 @@ import EditIcon from '@material-ui/icons/Edit';
 
 import TextField from '@material-ui/core/TextField';
 
-function ObjectMap(position,id,name,phone,address,city,state,country,zipCode,email) {
-  return { position,id,name, phone,address,city,state,country,zipCode,email };
-}
-
-let rows = [
-    ObjectMap(0,15,'Cameron', '23452345','las',' df ','asdf ',' asf','asfd ','as f'),
-    ObjectMap(1,26,'Hilton', '768769','qwer','qwer','er','req','qre','ee')
-];
+const API = 'http://localhost:8000/api';
 
 let actualData={}
 
@@ -34,10 +30,32 @@ class Hotels extends Component {
     constructor(props){
         super()
         this.state = {
+            connectionError:false,
+            loadingData:true,
+            rows:[],
             detailsOpened:false,
         }
 
     }
+
+    componentWillMount() {
+        fetch(API + '/hotels')
+          .then(response => response.json())
+          .then(jsonObject => {
+            //Asigning each element the position in array, in order to facilitate the automatic edition  
+            let rows = jsonObject.data
+            let tempRows = []
+            let elementCounter = 0;
+            rows.forEach(element => {
+                element.position = elementCounter
+                element.image=''
+                tempRows.push(element)
+                elementCounter++
+            });
+            this.setState({rows:tempRows,loadingData:false})
+          })
+          .catch(ex => this.setState({connectionError:true,loadingData:false}));
+      }    
 
     updateInputValue = function (event) {
         event.persist()
@@ -62,18 +80,37 @@ class Hotels extends Component {
         })
     }
 
+    saveRowRemote = () => {
+        let method='POST'
+        let url = API + '/hotel'
+        if(actualData.id !==0){
+            method = 'PUT'
+            url += '/'+ actualData.id
+        } 
+
+        console.log(actualData)
+        url += '?' + Object.keys(actualData)
+          .map(key => `${key}=${actualData[key].toString()}`)
+          .join('&');
+
+        fetch(url, {method: method})
+            .then(response => this.saveRow())      
+    }
+
     saveRow = () => {
+        let tempRows = JSON.parse(JSON.stringify(this.state.rows))
         if(actualData.id ===0){
-            actualData.position = rows.length
+            actualData.position = this.state.rows.length
             actualData.id = actualData.position
-            rows.push(actualData)
+            tempRows.push(actualData)
         }
         else {
-            rows[actualData.position] = JSON.parse(JSON.stringify(actualData))
+            tempRows[actualData.position] = JSON.parse(JSON.stringify(actualData))
         }
 
         this.setState({
             detailsOpened:false,
+            rows:JSON.parse(JSON.stringify(tempRows))
         })
         this.closeDetails()
     }
@@ -94,6 +131,12 @@ class Hotels extends Component {
             iconSmall: {
               fontSize: 20,
             },
+            progress: {
+                margin: theme.spacing(2),
+            }, 
+            error: {
+                backgroundColor:'red',
+            },                       
           }));
 
 
@@ -101,6 +144,7 @@ class Hotels extends Component {
             <div>
                 <span style={{fontSize:'30px',fontWeight:'bold'}}>HOTELS</span>
                 &nbsp;&nbsp;&nbsp;
+                { !this.state.connectionError && (
                 <Fab 
                     variant="round" 
                     color='primary' 
@@ -108,6 +152,7 @@ class Hotels extends Component {
                 >
                     <AddIcon className={clsx(classes.button, classes.iconSmall)} />
                 </Fab>
+                )}
                 <br/>
                 <br/>
                 <Paper >
@@ -120,7 +165,7 @@ class Hotels extends Component {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {rows.map(row => (
+                            {this.state.rows.map(row => (
                             <TableRow key={row.position}>
                                 <TableCell component="th" scope="row">
                                     {row.name}
@@ -140,11 +185,40 @@ class Hotels extends Component {
                         </TableBody>
                     </Table>
                 </Paper>
+
+                { this.state.loadingData && (
+                    <div>
+                        <br/>
+                        <center><CircularProgress className={classes.progress} ></CircularProgress></center>
+                    </div>
+                )}
+                { this.state.connectionError && (
+                    <div>
+                        <Snackbar
+                            anchorOrigin={{
+                            vertical: 'bottom',
+                            horizontal: 'left',
+                            }}
+                            open={true}
+                            autoHideDuration={6000}
+                        >
+                        <SnackbarContent
+                            style={{backgroundColor:'darkred'}}
+                            message={
+                                <span>
+                                Connection Error
+                                </span>
+                            }
+
+                        />
+                        </Snackbar>
+                    </div>
+                )}
                 <Dialog open={this.state.detailsOpened} onClose={this.closeDetails}  >
                     <DialogContent>
                         <h3>Hotel Details</h3>
                         <span className='controlWraperStyle'  >
-                            <Button variant="contained" color="primary" onClick={this.saveRow}>
+                            <Button variant="contained" color="primary" onClick={this.saveRowRemote}>
                                 Save
                             </Button>
                         </span>
@@ -159,25 +233,25 @@ class Hotels extends Component {
                             <TextField inputProps={{name:'name'}}  label="Name" variant="outlined" defaultValue={actualData.name} onChange={this.updateInputValue} />
                         </span>
                         <span className="controlWraperStyle" >
-                            <TextField label="Address" variant="outlined" defaultValue={actualData.address} />
+                            <TextField inputProps={{name:'address'}} label="Address" variant="outlined" defaultValue={actualData.address} onChange={this.updateInputValue} />
                         </span>
                         <span className="controlWraperStyle" >
-                            <TextField label="City" variant="outlined" defaultValue={actualData.city} />
+                            <TextField inputProps={{name:'city'}} label="City" variant="outlined" defaultValue={actualData.city} onChange={this.updateInputValue} />
                         </span>
                         <span className="controlWraperStyle" >
-                            <TextField label="State" variant="outlined" defaultValue={actualData.state} />
+                            <TextField inputProps={{name:'state'}} label="State" variant="outlined" defaultValue={actualData.state} onChange={this.updateInputValue} />
                         </span>
                         <span className="controlWraperStyle" >
-                            <TextField label="Country" variant="outlined" defaultValue={actualData.country} />
+                            <TextField inputProps={{name:'country'}} label="Country" variant="outlined" defaultValue={actualData.country} onChange={this.updateInputValue} />
                         </span>
                         <span className="controlWraperStyle" >
-                            <TextField label="Zip Code" variant="outlined" defaultValue={actualData.zipCode} />
+                            <TextField inputProps={{name:'zip_code'}} label="Zip Code" variant="outlined" defaultValue={actualData.zip_code} onChange={this.updateInputValue} />
                         </span>
                         <span className="controlWraperStyle" >
                             <TextField inputProps={{name:'phone'}} label="Phone" variant="outlined" defaultValue={actualData.phone} onChange={this.updateInputValue} />
                         </span>
                         <span className="controlWraperStyle" >
-                            <TextField label="E-Mail" variant="outlined" defaultValue={actualData.email} />
+                            <TextField inputProps={{name:'email'}} label="E-Mail" variant="outlined" defaultValue={actualData.email} onChange={this.updateInputValue} />
                         </span>
 
                     </DialogContent>
