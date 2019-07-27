@@ -1,5 +1,5 @@
 let Config = {
-    api : 'http://localhost:8000/apix'
+    api : 'http://localhost:8000/api'
 }
 
 export default Config;
