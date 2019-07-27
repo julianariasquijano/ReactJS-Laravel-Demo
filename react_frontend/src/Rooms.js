@@ -27,7 +27,7 @@ let actualData={}
 let lastRowIdUpdated=0
 let validationMessages={}
 
-class RoomTypes extends Component {
+class Rooms extends Component {
 
     constructor(props){
         super()
@@ -44,7 +44,7 @@ class RoomTypes extends Component {
     }
 
     componentWillMount() {
-        fetch(Config.api + '/room_types')
+        fetch(Config.api + '/rooms')
           .then(response => response.json())
           .then(jsonObject => {
             //Asigning each element the position in array, in order to facilitate the automatic edition  
@@ -53,6 +53,7 @@ class RoomTypes extends Component {
             let elementCounter = 0;
             rows.forEach(element => {
                 element.position = elementCounter
+                element.image=''
                 tempRows.push(element)
                 elementCounter++
             });
@@ -95,9 +96,9 @@ class RoomTypes extends Component {
     validateForm = () => {
         let validationResult = true
         this.resetValidationMessages()
-        if(actualData.type === undefined || actualData.type === null || actualData.type ===''){
+        if(actualData.name === undefined || actualData.name === null || actualData.name ===''){
             validationResult = false;
-            validationMessages.type='Required'
+            validationMessages.name='Required'
         }
         this.setState({validationMessages : validationMessages}) ;
         return validationResult
@@ -107,7 +108,7 @@ class RoomTypes extends Component {
         if(!this.validateForm())return
 
         let method='POST'
-        let url = Config.api + '/room_type'
+        let url = Config.api + '/room'
         if(actualData.id !==0){
             method = 'PUT'
             url += '/'+ actualData.id
@@ -161,7 +162,7 @@ class RoomTypes extends Component {
                 </Fab>
                 )}
                 &nbsp;&nbsp;&nbsp;
-                <span style={{fontSize:'30px',fontWeight:'bold'}}>Room Types</span>
+                <span style={{fontSize:'30px',fontWeight:'bold'}}>Rooms</span>
                 { this.state.loadingData && (
                     <div>
                         <br/>
@@ -174,7 +175,7 @@ class RoomTypes extends Component {
                     <Table >
                         <TableHead>
                             <TableRow>
-                                <TableCell>Room Type</TableCell>
+                                <TableCell>Room</TableCell>
                                 <TableCell></TableCell>
                             </TableRow>
                         </TableHead>
@@ -223,7 +224,7 @@ class RoomTypes extends Component {
                 )}
                 <Dialog open={this.state.detailsOpened} onClose={this.closeDetails}  >
                     <DialogContent>
-                        <h3>Room Type Details</h3>
+                        <h3>Room Details</h3>
                         <span className='controlWraperStyle'  >
                             <Button variant="contained" color="primary" onClick={this.saveRowRemote}>
                                 Save
@@ -238,7 +239,7 @@ class RoomTypes extends Component {
 
                         <span className="controlWraperStyle" >
                             <div className='errorMessages' >{this.state.validationMessages.type}</div>
-                            <TextField inputProps={{name:'type'}}  label="Room Type" variant="outlined" defaultValue={actualData.type} onChange={this.updateInputValue} />
+                            <TextField inputProps={{name:'name'}}  label="Room" variant="outlined" defaultValue={actualData.name} onChange={this.updateInputValue} />
                         </span>
 
                     </DialogContent>
@@ -248,4 +249,4 @@ class RoomTypes extends Component {
     }
 }
 
-export default RoomTypes;
+export default Rooms;

@@ -187,17 +187,17 @@ class Hotels extends Component {
 
         return (
             <div>
-                <span style={{fontSize:'30px',fontWeight:'bold'}}>HOTELS</span>
-                &nbsp;&nbsp;&nbsp;
                 { !this.state.connectionError && (
-                <Fab 
+                    <Fab 
                     variant="round" 
                     color='primary' 
                     onClick={this.openDetails} 
-                >
+                    >
                     <AddIcon />
                 </Fab>
                 )}
+                &nbsp;&nbsp;&nbsp;
+                <span style={{fontSize:'30px',fontWeight:'bold'}}>HOTELS</span>
                 { this.state.loadingData && (
                     <div>
                         <br/>
@@ -268,7 +268,7 @@ class Hotels extends Component {
                             </Button>
                         </span>
                         <span className='controlWraperStyle' >
-                            <Button size="small" variant="contained" color="secondary" onClick={this.closeDetails} >
+                            <Button variant="contained" color="secondary" onClick={this.closeDetails} >
                                 Cancel
                             </Button>
                         </span>                  
