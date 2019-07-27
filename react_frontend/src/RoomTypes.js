@@ -186,6 +186,7 @@ class RoomTypes extends Component {
                                 </TableCell>
                                 <TableCell >
                                     <Fab id={row.id}
+                                        size='small'
                                         variant="round" 
                                         color='primary' 
                                         onClick={() => {this.openDetailsWithRow(row)}} 
