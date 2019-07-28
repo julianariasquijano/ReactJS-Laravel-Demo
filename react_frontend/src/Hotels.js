@@ -15,12 +15,12 @@ import Button from '@material-ui/core/Button';
 import Fab from '@material-ui/core/Fab';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
-
 import AddIcon from '@material-ui/icons/Add';
 import EditIcon from '@material-ui/icons/Edit';
-
+import RoomIcon from '@material-ui/icons/RadioButtonChecked';
 import TextField from '@material-ui/core/TextField';
 
+import Rooms from './Rooms'
 import Config from './Config'
 
 let actualData={}
@@ -36,8 +36,8 @@ class Hotels extends Component {
             loadingData:true,
             rows:[],
             detailsOpened:false,
-            validationMessages:{}
-            //validationMessages:JSON.parse(JSON.stringify(validationMessages))
+            validationMessages:{},
+            selectedHotel:0
 
         }
 
@@ -182,10 +182,18 @@ class Hotels extends Component {
         this.closeDetails()
     }
 
+    showRooms = (hotel) => {
+        this.setState({
+            selectedHotel:hotel
+        })
+    }
+
 
     render(){
-
-        return (
+        if(this.state.selectedHotel !== 0){
+            return(<div><Rooms hotel={this.state.selectedHotel}></Rooms></div>)
+        }
+        else return (
             <div>
                 { !this.state.connectionError && (
                     <Fab 
@@ -197,7 +205,7 @@ class Hotels extends Component {
                 </Fab>
                 )}
                 &nbsp;&nbsp;&nbsp;
-                <span style={{fontSize:'30px',fontWeight:'bold'}}>HOTELS</span>
+                <span style={{fontSize:'30px',fontWeight:'bold'}}>Hotels</span>
                 { this.state.loadingData && (
                     <div>
                         <br/>
@@ -224,11 +232,21 @@ class Hotels extends Component {
                                 <TableCell >{row.phone}</TableCell>
                                 <TableCell >
                                     <Fab id={row.id}
+                                        size='small'
                                         variant="round" 
                                         color='primary' 
                                         onClick={() => {this.openDetailsWithRow(row)}} 
                                     >
                                         <EditIcon/>
+                                    </Fab>
+                                    &nbsp;&nbsp;
+                                    <Fab id={row.id}
+                                        size='small'
+                                        variant="round" 
+                                        color='primary' 
+                                        onClick={() => {this.showRooms(row)}} 
+                                    >
+                                        <RoomIcon/>
                                     </Fab>
                                 </TableCell>
                             </TableRow>

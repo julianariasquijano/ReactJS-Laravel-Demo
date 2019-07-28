@@ -18,6 +18,11 @@ import AddIcon from '@material-ui/icons/Add';
 import EditIcon from '@material-ui/icons/Edit';
 
 import TextField from '@material-ui/core/TextField';
+import FormControl from '@material-ui/core/FormControl';
+import InputLabel from '@material-ui/core/InputLabel';
+import Select from '@material-ui/core/Select';
+import OutlinedInput from '@material-ui/core/OutlinedInput';
+import MenuItem from '@material-ui/core/MenuItem';
 
 import Config from './Config'
 
@@ -36,15 +41,16 @@ class Rooms extends Component {
             loadingData:true,
             rows:[],
             detailsOpened:false,
-            validationMessages:{}
-            //validationMessages:JSON.parse(JSON.stringify(validationMessages))
-
+            validationMessages:{},
+            roomTypes:[],
+            selectedRoomType:0,
+            hotel:props.hotel
         }
 
     }
 
     componentWillMount() {
-        fetch(Config.api + '/rooms')
+        fetch(Config.api + '/rooms_by_hotel/'+this.state.hotel.id)
           .then(response => response.json())
           .then(jsonObject => {
             //Asigning each element the position in array, in order to facilitate the automatic edition  
@@ -60,12 +66,25 @@ class Rooms extends Component {
             this.setState({rows:tempRows,loadingData:false})
           })
           .catch(ex => this.setState({connectionError:true,loadingData:false}));
+
+        fetch(Config.api + '/room_types')
+          .then(response => response.json())
+          .then(jsonObject => {
+            this.setState({roomTypes:jsonObject.data,loadingData:false})
+          })
+          .catch(ex => this.setState({connectionError:true,loadingData:false}));
       }    
 
     updateInputValue = function (event) {
         event.persist()
         actualData[event.target.name]= event.target.value
     }
+    updateRoomTypeValue = (event) => {
+        this.updateInputValue(event)
+        this.setState({
+            selectedRoomType:event.target.value,
+        })
+      }    
     openDetails = () => {
         actualData= {id:0}
         this.setState({
@@ -162,7 +181,7 @@ class Rooms extends Component {
                 </Fab>
                 )}
                 &nbsp;&nbsp;&nbsp;
-                <span style={{fontSize:'30px',fontWeight:'bold'}}>Rooms</span>
+                <span style={{fontSize:'30px',fontWeight:'bold'}}>{this.state.hotel.name} Rooms</span>
                 { this.state.loadingData && (
                     <div>
                         <br/>
@@ -183,7 +202,7 @@ class Rooms extends Component {
                             {this.state.rows.map(row => (
                             <TableRow key={row.position}>
                                 <TableCell component="th" scope="row">
-                                    {row.type}
+                                    {row.name}
                                 </TableCell>
                                 <TableCell >
                                     <Fab id={row.id}
@@ -238,10 +257,27 @@ class Rooms extends Component {
                         </span>                  
                         <br/>
 
-                        <span className="controlWraperStyle" >
+                        <div className="controlWraperStyle" >
                             <div className='errorMessages' >{this.state.validationMessages.type}</div>
                             <TextField inputProps={{name:'name'}}  label="Room" variant="outlined" defaultValue={actualData.name} onChange={this.updateInputValue} />
-                        </span>
+                        </div>
+                        <br/>
+                        <div className="controlWraperStyle" >
+                            <div className='errorMessages' >{this.state.validationMessages.type}</div>
+                            
+                            <FormControl variant="outlined">
+                                <InputLabel  htmlFor="outlined-age-native-simple">
+                                    <label>Room&nbsp;Type</label>
+                                </InputLabel>          
+                                <Select value={0} input={<OutlinedInput labelWidth={300}  id="outlined-age-native-simple" name='room_type_id'  />} onChange={this.updateRoomTypeValue} value={actualData.room_type_id} >
+                                    <MenuItem value={0} ><em>Select <b>type ...</b></em></MenuItem>
+                                    {this.state.roomTypes.map(roomType => (
+                                        <MenuItem value={roomType.id} >{roomType.type}</MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+
+                        </div>
 
                     </DialogContent>
                 </Dialog>          
