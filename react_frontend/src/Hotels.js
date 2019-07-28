@@ -214,6 +214,7 @@ class Hotels extends Component {
                 )}
                 <br/>
                 <br/>
+                { !this.state.loadingData && (
                 <Paper >
                     <Table >
                         <TableHead>
@@ -254,6 +255,7 @@ class Hotels extends Component {
                         </TableBody>
                     </Table>
                 </Paper>
+                )}
 
                 { this.state.connectionError && (
                     <div>

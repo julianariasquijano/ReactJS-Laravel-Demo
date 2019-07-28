@@ -170,6 +170,7 @@ class RoomTypes extends Component {
                 )}
                 <br/>
                 <br/>
+                { !this.state.loadingData && (
                 <Paper >
                     <Table >
                         <TableHead>
@@ -199,7 +200,7 @@ class RoomTypes extends Component {
                         </TableBody>
                     </Table>
                 </Paper>
-
+                )}
                 { this.state.connectionError && (
                     <div>
                         <Snackbar
