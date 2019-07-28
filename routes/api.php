@@ -33,6 +33,7 @@ Route::put('room_type/{id}', 'RoomTypeController@update');
 Route::delete('room_type/{id}', 'RoomTypeController@destroy');
 
 Route::get('rooms', 'RoomController@index');
+Route::get('rooms_by_hotel/{id}', 'RoomController@indexByHotel');
 Route::get('room/{id}', 'RoomController@show');
 Route::post('room', 'RoomController@store');
 Route::put('room/{id}', 'RoomController@update');

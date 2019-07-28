@@ -25,6 +25,19 @@ class RoomController extends Controller
     }
 
     /**
+     * Display a listing of the resource filtered by hotel.
+     *
+     * @return \Illuminate\Http\Response
+     */
+
+    public function indexByHotel($id)
+    {
+        ini_set('display_errors', '1');error_reporting(E_ALL);
+        $record = Room::whereHotel_id($id)->get();
+        return RoomResource::collection($record);
+    }
+
+    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
