@@ -21,7 +21,7 @@ import TextField from '@material-ui/core/TextField';
 import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 import Select from '@material-ui/core/Select';
-import OutlinedInput from '@material-ui/core/OutlinedInput';
+import Input from '@material-ui/core/Input';
 import MenuItem from '@material-ui/core/MenuItem';
 
 import Config from './Config'
@@ -86,7 +86,7 @@ class Rooms extends Component {
         })
       }    
     openDetails = () => {
-        actualData= {id:0}
+        actualData= {id:0,room_type_id:0,hotel_id:this.state.hotel.id}
         this.setState({
             detailsOpened:true,
         })
@@ -106,7 +106,8 @@ class Rooms extends Component {
     }
     resetValidationMessages = () => {
         validationMessages = {
-            type:'',
+            name:'',
+            room_type_id:'',
         }
         this.setState({
             validationMessages:validationMessages,
@@ -118,6 +119,10 @@ class Rooms extends Component {
         if(actualData.name === undefined || actualData.name === null || actualData.name ===''){
             validationResult = false;
             validationMessages.name='Required'
+        }
+        if(actualData.room_type_id === 0 || actualData.room_type_id === undefined || actualData.room_type_id === null || actualData.room_type_id ===''){
+            validationResult = false;
+            validationMessages.room_type_id='Required'
         }
         this.setState({validationMessages : validationMessages}) ;
         return validationResult
@@ -166,6 +171,18 @@ class Rooms extends Component {
         this.closeDetails()
     }
 
+    getRoomTypeLabel = (room_type_id) => {
+
+        let roomTypeLabel = ''
+        this.state.roomTypes.forEach(roomType => {
+            if(roomType.id.toString() === room_type_id.toString()){
+                roomTypeLabel = roomType.type
+            }
+        })
+        return roomTypeLabel
+
+    }
+
 
     render(){
 
@@ -190,11 +207,13 @@ class Rooms extends Component {
                 )}
                 <br/>
                 <br/>
+                { !this.state.loadingData && (
                 <Paper >
                     <Table >
                         <TableHead>
                             <TableRow>
                                 <TableCell>Room</TableCell>
+                                <TableCell>Type</TableCell>
                                 <TableCell></TableCell>
                             </TableRow>
                         </TableHead>
@@ -203,6 +222,9 @@ class Rooms extends Component {
                             <TableRow key={row.position}>
                                 <TableCell component="th" scope="row">
                                     {row.name}
+                                </TableCell>
+                                <TableCell component="th" scope="row">
+                                    {this.getRoomTypeLabel(row.room_type_id)}
                                 </TableCell>
                                 <TableCell >
                                     <Fab id={row.id}
@@ -219,7 +241,7 @@ class Rooms extends Component {
                         </TableBody>
                     </Table>
                 </Paper>
-
+                )}
                 { this.state.connectionError && (
                     <div>
                         <Snackbar
@@ -258,27 +280,24 @@ class Rooms extends Component {
                         <br/>
 
                         <div className="controlWraperStyle" >
-                            <div className='errorMessages' >{this.state.validationMessages.type}</div>
+                            <div className='errorMessages' >{this.state.validationMessages.name}</div>
                             <TextField inputProps={{name:'name'}}  label="Room" variant="outlined" defaultValue={actualData.name} onChange={this.updateInputValue} />
                         </div>
                         <br/>
                         <div className="controlWraperStyle" >
-                            <div className='errorMessages' >{this.state.validationMessages.type}</div>
-                            
-                            <FormControl variant="outlined">
-                                <InputLabel  htmlFor="outlined-age-native-simple">
+                            <div className='errorMessages' >{this.state.validationMessages.room_type_id}</div>
+                            <FormControl >
+                                <InputLabel  htmlFor="room_type">
                                     <label>Room&nbsp;Type</label>
                                 </InputLabel>          
-                                <Select value={0} input={<OutlinedInput labelWidth={300}  id="outlined-age-native-simple" name='room_type_id'  />} onChange={this.updateRoomTypeValue} value={actualData.room_type_id} >
-                                    <MenuItem value={0} ><em>Select <b>type ...</b></em></MenuItem>
+                                <Select value={0} input={<Input id="room_type" name='room_type_id'  />} onChange={this.updateRoomTypeValue} value={actualData.room_type_id} >
+                                    <MenuItem value={0} key={0} ><em>Select <b>type ...</b></em></MenuItem>
                                     {this.state.roomTypes.map(roomType => (
-                                        <MenuItem value={roomType.id} >{roomType.type}</MenuItem>
+                                        <MenuItem key={roomType.id} value={roomType.id} >{roomType.type}</MenuItem>
                                     ))}
                                 </Select>
                             </FormControl>
-
                         </div>
-
                     </DialogContent>
                 </Dialog>          
             </div>
