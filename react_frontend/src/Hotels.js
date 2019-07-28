@@ -188,10 +188,16 @@ class Hotels extends Component {
         })
     }
 
+    hideRooms = () => {
+        this.setState({
+            selectedHotel:0
+        })
+    }
+
 
     render(){
         if(this.state.selectedHotel !== 0){
-            return(<div><Rooms hotel={this.state.selectedHotel}></Rooms></div>)
+            return(<div><Rooms returnFunction={this.hideRooms} hotel={this.state.selectedHotel}></Rooms></div>)
         }
         else return (
             <div>

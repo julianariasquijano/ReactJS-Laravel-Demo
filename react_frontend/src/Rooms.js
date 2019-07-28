@@ -10,6 +10,9 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
+import Breadcrumbs from '@material-ui/core/Breadcrumbs';
+import Typography from '@material-ui/core/Typography';
+import Link from '@material-ui/core/Link';
 import Fab from '@material-ui/core/Fab';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -44,7 +47,8 @@ class Rooms extends Component {
             validationMessages:{},
             roomTypes:[],
             selectedRoomType:0,
-            hotel:props.hotel
+            hotel:props.hotel,
+            returnFunction:props.returnFunction
         }
 
     }
@@ -207,6 +211,13 @@ class Rooms extends Component {
                 )}
                 <br/>
                 <br/>
+                <Breadcrumbs aria-label="breadcrumb">
+                    <Typography color="inherit" onClick={this.state.returnFunction} >
+                        Hotels
+                    </Typography>
+                    <Typography color="textPrimary">Rooms</Typography>
+                </Breadcrumbs>
+                <br></br>
                 { !this.state.loadingData && (
                 <Paper >
                     <Table >
