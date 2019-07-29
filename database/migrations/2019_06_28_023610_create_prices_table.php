@@ -28,6 +28,8 @@ class CreatePricesTable extends Migration
                 
             $table->integer('price');
 
+            $table->unique(['hotel_id','room_type_id']);
+
             $table->timestamps();
         });
     }
