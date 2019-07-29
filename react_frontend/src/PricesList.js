@@ -170,7 +170,12 @@ class PricesList extends Component {
             //lastRowIdUpdated is used to correctly edit a recently created row
             lastRowIdUpdated=jsonObject.data.id
             this.setState({loadingData:false})})        
-            .then(response => this.saveRow())      
+            .then(response => this.saveRow())
+            .catch((ex) => {
+                //Quick way to validate unique but has to be improved
+                validationMessages.hotel_id='Price already exists'
+                this.setState({validationMessages:validationMessages,loadingData:false}) 
+            })                
     }
 
     saveRow = () => {
@@ -326,7 +331,7 @@ class PricesList extends Component {
                                     <label>Hotel</label>
                                 </InputLabel>          
                                 <Select value={0} input={<Input id="hotel" name='hotel_id'  />} onChange={this.updateHotelValue} value={actualData.hotel_id} >
-                                    <MenuItem value={0} key={0} ><em>Select <b>type ...</b></em></MenuItem>
+                                    <MenuItem value={0} key={0} ><em>Select <b>Hotel ...</b></em></MenuItem>
                                     {this.state.hotels.map(hotel => (
                                         <MenuItem key={hotel.id} value={hotel.id} >{hotel.name}</MenuItem>
                                     ))}
