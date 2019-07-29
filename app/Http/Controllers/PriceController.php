@@ -36,7 +36,7 @@ class PriceController extends Controller
     {
 
         $validator=Validator::make($request->input(), [
-            'prince' => 'required|integer',
+            'price' => 'required|integer',
             'hotel_id' => 'required|integer',
             'room_type_id' => 'required|integer',
         ]);
