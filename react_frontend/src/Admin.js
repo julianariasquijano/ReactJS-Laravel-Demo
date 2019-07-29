@@ -8,6 +8,7 @@ import Typography from '@material-ui/core/Typography';
 
 import Hotels from './Hotels'
 import RoomTypes from './RoomTypes'
+import PricesList from './PricesList'
 
 //Seting tabs basic functionality
 function TabContainer(props) {
@@ -43,10 +44,12 @@ export default function Admin() {
         <Tabs value={value} onChange={handleChange}>
           <Tab label="Hotels" />
           <Tab label="Room Types" />
+          <Tab label="Prices List" />
         </Tabs>
       </AppBar>
       {value === 0 && <TabContainer> <Hotels></Hotels> </TabContainer>}
       {value === 1 && <TabContainer> <RoomTypes></RoomTypes> </TabContainer>}
+      {value === 2 && <TabContainer> <PricesList></PricesList> </TabContainer>}
     </div>
   );
 }
