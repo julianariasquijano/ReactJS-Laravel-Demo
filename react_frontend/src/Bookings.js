@@ -12,23 +12,21 @@ import Paper from '@material-ui/core/Paper';
 import Button from '@material-ui/core/Button';
 import Breadcrumbs from '@material-ui/core/Breadcrumbs';
 import Typography from '@material-ui/core/Typography';
-import Link from '@material-ui/core/Link';
 import Fab from '@material-ui/core/Fab';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
-import DetailIcon from '@material-ui/icons/RadioButtonChecked';
 
 import AddIcon from '@material-ui/icons/Add';
 import EditIcon from '@material-ui/icons/Edit';
 
 import TextField from '@material-ui/core/TextField';
-import FormControl from '@material-ui/core/FormControl';
-import InputLabel from '@material-ui/core/InputLabel';
-import Select from '@material-ui/core/Select';
-import Input from '@material-ui/core/Input';
-import MenuItem from '@material-ui/core/MenuItem';
 
-import Bookings from './Bookings'
+import {
+    DatePicker,
+    MuiPickersUtilsProvider,
+  } from "@material-ui/pickers";
+
+import MomentUtils from '@date-io/moment';
 
 import Config from './Config'
 
@@ -38,7 +36,7 @@ let actualData={}
 let lastRowIdUpdated=0
 let validationMessages={}
 
-class Rooms extends Component {
+class Bookings extends Component {
 
     constructor(props){
         super()
@@ -48,17 +46,19 @@ class Rooms extends Component {
             rows:[],
             detailsOpened:false,
             validationMessages:{},
-            roomTypes:[],
-            selectedRoomType:0,
-            hotel:props.hotel,
+            room:props.room,
             returnFunction:props.returnFunction,
-            selectedRoom:0
+            doubleReturnFunction:props.doubleReturnFunction,
+            dateStart:null,
+            dateEnd:null,
+            total_nights:0,
         }
 
     }
 
     componentWillMount() {
-        fetch(Config.api + '/rooms_by_hotel/'+this.state.hotel.id)
+        fetch(Config.api + '/bookings')
+        //fetch(Config.api + '/bookings/'+this.state.room.id)
           .then(response => response.json())
           .then(jsonObject => {
             //Asigning each element the position in array, in order to facilitate the automatic edition  
@@ -75,36 +75,49 @@ class Rooms extends Component {
           })
           .catch(ex => this.setState({connectionError:true,loadingData:false}));
 
-        fetch(Config.api + '/room_types')
-          .then(response => response.json())
-          .then(jsonObject => {
-            this.setState({roomTypes:jsonObject.data,loadingData:false})
-          })
-          .catch(ex => this.setState({connectionError:true,loadingData:false}));
       }    
 
     updateInputValue = function (event) {
         event.persist()
         actualData[event.target.name]= event.target.value
     }
-    updateRoomTypeValue = (event) => {
-        this.updateInputValue(event)
+    updateDateStartValue = (event) => {
+        actualData.date_start= event.toISOString().substr(0,10)
+        this.setState({date_start:actualData.date_start})
+        this.setTotalNights()
+
+    }
+    updateDateEndValue = (event) => {
+        actualData.date_end= event.toISOString().substr(0,10)
+        this.setState({date_end:actualData.date_end})
+        this.setTotalNights()
+    }
+  
+    setTotalNights = () => {
+        actualData.total_nights = Math.floor((Math.abs(new Date(actualData.date_start)-new Date(actualData.date_end)))/1000/86400)
         this.setState({
-            selectedRoomType:event.target.value,
+             total_nights: actualData.total_nights
         })
-      }    
+    }
     openDetails = () => {
-        actualData= {id:0,room_type_id:0,hotel_id:this.state.hotel.id}
+        let todayDate = new Date()
+        let todayDateText = todayDate.toISOString().substr(0,10)
+        actualData= {id:0,room_id:this.state.room.id,date_start:todayDateText,date_end:todayDateText,customer_name:'',customer_email:'',total_nights:0}
         this.setState({
             detailsOpened:true,
+            dateStart:actualData.date_start,
+            dateEnd:actualData.date_end,
         })
     }
 
     openDetailsWithRow = (row) => {
         actualData = JSON.parse(JSON.stringify(row))
         this.setState({
+            dateStart:actualData.date_start,
+            dateEnd:actualData.date_end,
             detailsOpened:true,
         })
+        this.setTotalNights()
     }
     closeDetails = () => {
         this.resetValidationMessages()
@@ -115,7 +128,10 @@ class Rooms extends Component {
     resetValidationMessages = () => {
         validationMessages = {
             name:'',
-            room_type_id:'',
+            date_start:'',
+            date_end:'',
+            customer_name:'',
+            customer_email:'',
         }
         this.setState({
             validationMessages:validationMessages,
@@ -124,14 +140,24 @@ class Rooms extends Component {
     validateForm = () => {
         let validationResult = true
         this.resetValidationMessages()
-        if(actualData.name === undefined || actualData.name === null || actualData.name ===''){
+
+        if( actualData.date_start === undefined || actualData.date_start === null || actualData.date_start ===''){
             validationResult = false;
-            validationMessages.name='Required'
+            validationMessages.date_start='Required'
         }
-        if(actualData.room_type_id === 0 || actualData.room_type_id === undefined || actualData.room_type_id === null || actualData.room_type_id ===''){
+        if( actualData.date_end === undefined || actualData.date_end === null || actualData.date_end ===''){
             validationResult = false;
-            validationMessages.room_type_id='Required'
+            validationMessages.date_end='Required'
         }
+        if( actualData.customer_name === undefined || actualData.customer_name === null || actualData.customer_name ===''){
+            validationResult = false;
+            validationMessages.customer_name='Required'
+        }
+        if( actualData.customer_email === undefined || actualData.customer_email === null || actualData.customer_email ===''){
+            validationResult = false;
+            validationMessages.customer_email='Required'
+        }
+            
         this.setState({validationMessages : validationMessages}) ;
         return validationResult
     }
@@ -140,14 +166,18 @@ class Rooms extends Component {
         if(!this.validateForm())return
 
         let method='POST'
-        let url = Config.api + '/room'
+        let url = Config.api + '/booking'
         if(actualData.id !==0){
             method = 'PUT'
             url += '/'+ actualData.id
         } 
 
+        actualData.date_start = actualData.date_start.toString().split('/').join('-')
+        actualData.date_end = actualData.date_end.toString().split('/').join('-')
+
         this.setState({loadingData:true})
 
+        delete actualData.user_id//null value prevents the maping
         url += '?' + Object.keys(actualData)
           .map(key => `${key}=${actualData[key].toString()}`)
           .join('&');
@@ -177,37 +207,10 @@ class Rooms extends Component {
             rows:JSON.parse(JSON.stringify(tempRows))
         })
         this.closeDetails()
-    }
-
-    getRoomTypeLabel = (room_type_id) => {
-
-        let roomTypeLabel = ''
-        this.state.roomTypes.forEach(roomType => {
-            if(roomType.id.toString() === room_type_id.toString()){
-                roomTypeLabel = roomType.type
-            }
-        })
-        return roomTypeLabel
-
-    }
-
-    showBookings = (room) => {
-        this.setState({
-            selectedRoom:room
-        })
-    }
-
-    hideBookings = () => {
-        this.setState({
-            selectedRoom:0
-        })
     }    
 
     render(){
 
-        if(this.state.selectedRoom !== 0){
-            return(<div><Bookings doubleReturnFunction={this.state.returnFunction} returnFunction={this.hideBookings} room={this.state.selectedRoom}></Bookings></div>)
-        }                
         return (
             <div>
                 { !this.state.connectionError && (
@@ -220,7 +223,7 @@ class Rooms extends Component {
                 </Fab>
                 )}
                 &nbsp;&nbsp;&nbsp;
-                <span style={{fontSize:'30px',fontWeight:'bold'}}>{this.state.hotel.name} Rooms</span>
+                <span style={{fontSize:'30px',fontWeight:'bold'}}>{this.state.room.name} Bookings</span>
                 { this.state.loadingData && (
                     <div>
                         <br/>
@@ -230,10 +233,13 @@ class Rooms extends Component {
                 <br/>
                 <br/>
                 <Breadcrumbs aria-label="breadcrumb">
-                    <Typography color="inherit" onClick={this.state.returnFunction} >
+                    <Typography color="inherit" onClick={this.state.doubleReturnFunction} >
                         Hotels
                     </Typography>
-                    <Typography color="textPrimary">Rooms</Typography>
+                    <Typography color="inherit" onClick={this.state.returnFunction} >
+                        Rooms
+                    </Typography>
+                    <Typography color="textPrimary">Bookings</Typography>
                 </Breadcrumbs>
                 <br></br>
                 { !this.state.loadingData && (
@@ -241,8 +247,10 @@ class Rooms extends Component {
                     <Table >
                         <TableHead>
                             <TableRow>
-                                <TableCell>Room</TableCell>
-                                <TableCell>Type</TableCell>
+                                <TableCell>Start Date</TableCell>
+                                <TableCell>End Date</TableCell>
+                                <TableCell>Customer</TableCell>
+                                <TableCell>Nights</TableCell>
                                 <TableCell></TableCell>
                             </TableRow>
                         </TableHead>
@@ -250,10 +258,16 @@ class Rooms extends Component {
                             {this.state.rows.map(row => (
                             <TableRow key={row.position}>
                                 <TableCell component="th" scope="row">
-                                    {row.name}
+                                    {row.date_start}
                                 </TableCell>
                                 <TableCell component="th" scope="row">
-                                    {this.getRoomTypeLabel(row.room_type_id)}
+                                    {row.date_end}
+                                </TableCell>
+                                <TableCell component="th" scope="row">
+                                    {row.customer_name}
+                                </TableCell>
+                                <TableCell component="th" scope="row">
+                                    {row.total_nights}
                                 </TableCell>
                                 <TableCell >
                                     <Fab id={row.id}
@@ -264,15 +278,6 @@ class Rooms extends Component {
                                     >
                                         <EditIcon/>
                                     </Fab>
-                                    &nbsp;&nbsp;
-                                    <Fab id={row.id}
-                                        size='small'
-                                        variant="round" 
-                                        color='primary' 
-                                        onClick={() => {this.showBookings(row)}} 
-                                    >
-                                        <DetailIcon/> 
-                                    </Fab>                                   
                                 </TableCell>
                             </TableRow>
                             ))}
@@ -304,7 +309,7 @@ class Rooms extends Component {
                 )}
                 <Dialog open={this.state.detailsOpened} onClose={this.closeDetails}  >
                     <DialogContent>
-                        <h3>Room Details</h3>
+                        <h3>Booking Details</h3>
                         <span className='controlWraperStyle'  >
                             <Button variant="contained" color="primary" onClick={this.saveRowRemote}>
                                 Save
@@ -314,28 +319,30 @@ class Rooms extends Component {
                             <Button variant="contained" color="secondary" onClick={this.closeDetails} >
                                 Cancel
                             </Button>
-                        </span>                  
+                        </span>
+                        <span color="inherit" style={{fontWeight:'bold',fontSize:'25px'}}>
+                            Total Nights: {this.state.total_nights}
+                        </span>                                          
                         <br/>
+                        <MuiPickersUtilsProvider utils={MomentUtils}>
+                          <span className='controlWraperStyle' >
+                            <div className='errorMessages' >{this.state.validationMessages.date_start}</div>
+                            <DatePicker format="YYYY/MM/DD" name='date_start' label='Date Start' inputVariant="outlined" value={this.state.dateStart} onChange={this.updateDateStartValue}  /> 
+                          </span>                 
+                          <span className='controlWraperStyle' >
+                            <div className='errorMessages' >{this.state.validationMessages.date_end}</div>
+                            <DatePicker format="YYYY/MM/DD" name='date_end' label='Date End' inputVariant="outlined" value={this.state.dateEnd} onChange={this.updateDateEndValue}  /> 
+                          </span>                 
+                        </MuiPickersUtilsProvider>                         
+                        <div className="controlWraperStyle" >
+                            <div className='errorMessages' >{this.state.validationMessages.customer_name}</div>
+                            <TextField inputProps={{name:'customer_name'}}  label="Customer" variant="outlined" defaultValue={actualData.customer_name} onChange={this.updateInputValue} />
+                        </div>
+                        <div className="controlWraperStyle" >
+                            <div className='errorMessages' >{this.state.validationMessages.customer_email}</div>
+                            <TextField inputProps={{name:'customer_email'}}  label="E-Mail" variant="outlined" defaultValue={actualData.customer_email} onChange={this.updateInputValue} />
+                        </div>
 
-                        <div className="controlWraperStyle" >
-                            <div className='errorMessages' >{this.state.validationMessages.name}</div>
-                            <TextField inputProps={{name:'name'}}  label="Room" variant="outlined" defaultValue={actualData.name} onChange={this.updateInputValue} />
-                        </div>
-                        <br/>
-                        <div className="controlWraperStyle" >
-                            <div className='errorMessages' >{this.state.validationMessages.room_type_id}</div>
-                            <FormControl >
-                                <InputLabel  htmlFor="room_type">
-                                    <label>Room&nbsp;Type</label>
-                                </InputLabel>          
-                                <Select value={0} input={<Input id="room_type" name='room_type_id'  />} onChange={this.updateRoomTypeValue} value={actualData.room_type_id} >
-                                    <MenuItem value={0} key={0} ><em>Select <b>type ...</b></em></MenuItem>
-                                    {this.state.roomTypes.map(roomType => (
-                                        <MenuItem key={roomType.id} value={roomType.id} >{roomType.type}</MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
-                        </div>
                     </DialogContent>
                 </Dialog>          
             </div>
@@ -343,4 +350,4 @@ class Rooms extends Component {
     }
 }
 
-export default Rooms;
+export default Bookings;
