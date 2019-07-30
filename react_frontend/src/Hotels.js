@@ -17,7 +17,7 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import AddIcon from '@material-ui/icons/Add';
 import EditIcon from '@material-ui/icons/Edit';
-import RoomIcon from '@material-ui/icons/RadioButtonChecked';
+import DetailIcon from '@material-ui/icons/RadioButtonChecked';
 import TextField from '@material-ui/core/TextField';
 
 import Rooms from './Rooms'
@@ -253,7 +253,7 @@ class Hotels extends Component {
                                         color='primary' 
                                         onClick={() => {this.showRooms(row)}} 
                                     >
-                                        <RoomIcon/>
+                                        <DetailIcon/>
                                     </Fab>
                                 </TableCell>
                             </TableRow>
