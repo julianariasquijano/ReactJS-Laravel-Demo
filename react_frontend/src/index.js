@@ -3,11 +3,10 @@ import ReactDOM from 'react-dom';
 import { Route, BrowserRouter as Router } from 'react-router-dom'
 import './index.css';
 import Admin from './Admin';
-import Booking from './Booking';
 import * as serviceWorker from './serviceWorker';
 
 window.debugVar =''
-
+/*
 const routing = (
     <Router>
       <div>
@@ -18,6 +17,9 @@ const routing = (
   )
 
 ReactDOM.render(routing, document.getElementById('root'));
+*/
+
+ReactDOM.render(<Admin/>,document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
