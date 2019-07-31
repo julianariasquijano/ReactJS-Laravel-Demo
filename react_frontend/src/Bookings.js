@@ -157,6 +157,10 @@ class Bookings extends Component {
             validationResult = false;
             validationMessages.customer_email='Required'
         }
+        else if( ! /\S+@\S+\.\S+/.test(actualData.customer_email) ){
+            validationResult = false;
+            validationMessages.customer_email='Invalid E-Mail'
+        }
         if( actualData.total_nights <= 0 ){
             validationResult = false;
             validationMessages.date_start='Date Start greater than Date End'

@@ -135,6 +135,10 @@ class Hotels extends Component {
             validationResult = false;
             validationMessages.email='Required'
         }
+        else if( ! /\S+@\S+\.\S+/.test(actualData.email) ){
+            validationResult = false;
+            validationMessages.email='Invalid E-Mail'
+        }        
         this.setState({validationMessages : validationMessages}) ;
         return validationResult
     }
