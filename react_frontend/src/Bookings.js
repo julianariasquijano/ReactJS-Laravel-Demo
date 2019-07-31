@@ -82,18 +82,18 @@ class Bookings extends Component {
     }
     updateDateStartValue = (event) => {
         actualData.date_start= event.toISOString().substr(0,10)
-        this.setState({date_start:actualData.date_start})
+        this.setState({dateStart:actualData.date_start})
         this.setTotalNights()
 
     }
     updateDateEndValue = (event) => {
         actualData.date_end= event.toISOString().substr(0,10)
-        this.setState({date_end:actualData.date_end})
+        this.setState({dateEnd:actualData.date_end})
         this.setTotalNights()
     }
   
     setTotalNights = () => {
-        actualData.total_nights = Math.floor((Math.abs(new Date(actualData.date_start)-new Date(actualData.date_end)))/1000/86400)
+        actualData.total_nights = Math.floor((new Date(actualData.date_start)-new Date(actualData.date_end))/1000/86400) * -1
         this.setState({
              total_nights: actualData.total_nights
         })
@@ -106,6 +106,7 @@ class Bookings extends Component {
             detailsOpened:true,
             dateStart:actualData.date_start,
             dateEnd:actualData.date_end,
+            total_nights:0
         })
     }
 
@@ -156,13 +157,50 @@ class Bookings extends Component {
             validationResult = false;
             validationMessages.customer_email='Required'
         }
+        if( actualData.total_nights <= 0 ){
+            validationResult = false;
+            validationMessages.date_start='Date Start greater than Date End'
+        }
             
+        this.setState({validationMessages : validationMessages}) ;
+        return validationResult
+    }
+
+    validateAvailability = () => {
+        let validationResult = true
+        this.resetValidationMessages()
+
+        this.state.rows.forEach(row => {
+            if(actualData.id === row.id)return
+            let actualDateStart = new Date (actualData.date_start)
+            let actualDateEnd = new Date (actualData.date_end)
+            let rowDateStart = new Date (row.date_start)
+            let rowDateEnd = new Date (row.date_end)
+
+            if( actualDateStart >= rowDateStart  && actualDateStart <= rowDateEnd ){
+                validationResult = false;
+                validationMessages.date_start='Date Start not available'
+                return
+            }
+            else if( actualDateEnd >= rowDateStart  && actualDateEnd <= rowDateEnd ){
+                validationResult = false;
+                validationMessages.date_end='Date End not available'
+                return
+            }
+            else if( actualDateStart <= rowDateStart  && actualDateEnd >= rowDateEnd ){
+                validationResult = false;
+                validationMessages.date_start='Date Overflow'
+                return
+            }
+        });
+
         this.setState({validationMessages : validationMessages}) ;
         return validationResult
     }
 
     saveRowRemote = () => {
         if(!this.validateForm())return
+        if(!this.validateAvailability())return
 
         let method='POST'
         let url = Config.api + '/booking'
@@ -326,11 +364,11 @@ class Bookings extends Component {
                         <MuiPickersUtilsProvider utils={MomentUtils}>
                           <span className='controlWraperStyle' >
                             <div className='errorMessages' >{this.state.validationMessages.date_start}</div>
-                            <DatePicker format="YYYY/MM/DD" name='date_start' label='Date Start' inputVariant="outlined" value={this.state.dateStart} onChange={this.updateDateStartValue}  /> 
+                            <DatePicker format="YYYY/MM/DD" name='date_start' minDate={new Date()} label='Date Start' inputVariant="outlined" value={this.state.dateStart} onChange={this.updateDateStartValue}  /> 
                           </span>                 
                           <span className='controlWraperStyle' >
                             <div className='errorMessages' >{this.state.validationMessages.date_end}</div>
-                            <DatePicker format="YYYY/MM/DD" name='date_end' label='Date End' inputVariant="outlined" value={this.state.dateEnd} onChange={this.updateDateEndValue}  /> 
+                            <DatePicker format="YYYY/MM/DD" name='date_end' minDate={new Date()} label='Date End' inputVariant="outlined" value={this.state.dateEnd} onChange={this.updateDateEndValue}  /> 
                           </span>                 
                         </MuiPickersUtilsProvider>                         
                         <div className="controlWraperStyle" >
