@@ -46,6 +46,7 @@ Route::put('price/{id}', 'PriceController@update');
 Route::delete('price/{id}', 'PriceController@destroy');
 
 Route::get('bookings', 'BookingController@index');
+Route::get('bookings_by_room/{id}', 'BookingController@indexByRoom');
 Route::get('booking/{id}', 'BookingController@show');
 Route::post('booking', 'BookingController@store');
 Route::put('booking/{id}', 'BookingController@update');

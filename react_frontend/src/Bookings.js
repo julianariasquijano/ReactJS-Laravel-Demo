@@ -57,8 +57,7 @@ class Bookings extends Component {
     }
 
     componentWillMount() {
-        fetch(Config.api + '/bookings')
-        //fetch(Config.api + '/bookings/'+this.state.room.id)
+        fetch(Config.api + '/bookings_by_room/'+this.state.room.id)
           .then(response => response.json())
           .then(jsonObject => {
             //Asigning each element the position in array, in order to facilitate the automatic edition  

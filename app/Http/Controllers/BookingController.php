@@ -24,6 +24,18 @@ class BookingController extends Controller
         return BookingResource::collection($record);
     }
 
+     /**
+     * Display a listing of the resource filtered by room.
+     *
+     * @return \Illuminate\Http\Response
+     */
+
+    public function indexByRoom($id)
+    {
+        $record = Booking::whereRoom_id($id)->get();
+        return BookingResource::collection($record);
+    }
+
     /**
      * Store a newly created resource in storage.
      *
