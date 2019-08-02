@@ -68,19 +68,18 @@ class Bookings extends Component {
         fetch(Config.api + '/bookings_by_room/'+this.state.room.id)
           .then(response => response.json())
           .then(jsonObject => {
-            let tempBookings = []
             //Asigning each element the position in array, in order to facilitate the automatic edition  
             let rows = jsonObject.data
             let tempRows = []
             let elementCounter = 0;
             rows.forEach(element => {
-                tempBookings.push({startDate:element.date_start,endDate:element.date_end,title:element.customer_name})
                 element.position = elementCounter
                 element.image=''
                 tempRows.push(element)
                 elementCounter++
             });
-            this.setState({rows:tempRows,schedulerData:tempBookings,loadingData:false})
+            this.setState({rows:tempRows,loadingData:false})
+            this.updateSchedulerEvents()
           })
           .catch(ex => this.setState({connectionError:true,loadingData:false}));
 
@@ -89,7 +88,9 @@ class Bookings extends Component {
     updateSchedulerEvents = () => {
         let tempBookings = []
         this.state.rows.forEach(element => {
-            tempBookings.push({startDate:element.date_start,endDate:element.date_end,title:element.customer_name})
+            let tempEndDate = new Date(element.date_end)
+            tempEndDate.setDate(tempEndDate.getDate() + 1);
+            tempBookings.push({startDate:element.date_start,endDate:tempEndDate.toISOString(),title:element.customer_name})
             this.setState({schedulerData:tempBookings})
         });
 
