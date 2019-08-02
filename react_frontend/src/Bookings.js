@@ -18,6 +18,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 
 import AddIcon from '@material-ui/icons/Add';
 import EditIcon from '@material-ui/icons/Edit';
+import CalendarIcon from '@material-ui/icons/CalendarToday';
 
 import TextField from '@material-ui/core/TextField';
 
@@ -27,6 +28,10 @@ import {
   } from "@material-ui/pickers";
 
 import MomentUtils from '@date-io/moment';
+
+
+import { ViewState } from '@devexpress/dx-react-scheduler';
+import { Scheduler, MonthView,WeekView, Appointments,Toolbar,DateNavigator,TodayButton } from '@devexpress/dx-react-scheduler-material-ui';
 
 import Config from './Config'
 
@@ -52,6 +57,9 @@ class Bookings extends Component {
             dateStart:null,
             dateEnd:null,
             total_nights:0,
+            schedulerData:[],
+            schedulerView:false,
+
         }
 
     }
@@ -60,21 +68,32 @@ class Bookings extends Component {
         fetch(Config.api + '/bookings_by_room/'+this.state.room.id)
           .then(response => response.json())
           .then(jsonObject => {
+            let tempBookings = []
             //Asigning each element the position in array, in order to facilitate the automatic edition  
             let rows = jsonObject.data
             let tempRows = []
             let elementCounter = 0;
             rows.forEach(element => {
+                tempBookings.push({startDate:element.date_start,endDate:element.date_end,title:element.customer_name})
                 element.position = elementCounter
                 element.image=''
                 tempRows.push(element)
                 elementCounter++
             });
-            this.setState({rows:tempRows,loadingData:false})
+            this.setState({rows:tempRows,schedulerData:tempBookings,loadingData:false})
           })
           .catch(ex => this.setState({connectionError:true,loadingData:false}));
 
       }    
+
+    updateSchedulerEvents = () => {
+        let tempBookings = []
+        this.state.rows.forEach(element => {
+            tempBookings.push({startDate:element.date_start,endDate:element.date_end,title:element.customer_name})
+            this.setState({schedulerData:tempBookings})
+        });
+
+    }
 
     updateInputValue = function (event) {
         event.persist()
@@ -247,21 +266,36 @@ class Bookings extends Component {
             detailsOpened:false,
             rows:JSON.parse(JSON.stringify(tempRows))
         })
+        this.updateSchedulerEvents()
         this.closeDetails()
-    }    
+    }
+    
+    closeScheduler = () => {
+        this.setState({schedulerView:false})
+    }
 
     render(){
 
         return (
             <div>
                 { !this.state.connectionError && (
-                  <Fab 
+                <span>
+                <Fab 
+                    variant="round" 
+                    color='primary' 
+                    onClick={() => {this.setState({schedulerView:true})}} 
+                >
+                    <CalendarIcon/>
+                </Fab>                    
+                &nbsp;
+                <Fab 
                   variant="round" 
                   color='primary' 
                   onClick={this.openDetails} 
                   >
                     <AddIcon />
                 </Fab>
+                </span>
                 )}
                 &nbsp;&nbsp;&nbsp;
                 <span style={{fontSize:'30px',fontWeight:'bold'}}>{this.state.room.name} Bookings</span>
@@ -284,7 +318,7 @@ class Bookings extends Component {
                 </Breadcrumbs>
                 <br></br>
                 { !this.state.loadingData && (
-                <Paper >
+                <Paper >                 
                     <Table >
                         <TableHead>
                             <TableRow>
@@ -385,7 +419,22 @@ class Bookings extends Component {
                         </div>
 
                     </DialogContent>
-                </Dialog>          
+                </Dialog>
+                <Dialog open={this.state.schedulerView} onClose={this.closeScheduler}>
+                    <DialogContent>
+                        <Button fullWidth color="primary" onClick={this.closeScheduler} >Close</Button>
+                        <Scheduler
+                            data={this.state.schedulerData}
+                        >
+                            <ViewState/>                        
+                            <MonthView />
+                            <Toolbar />
+                            <DateNavigator />
+                            <TodayButton />                        
+                            <Appointments />
+                        </Scheduler> 
+                    </DialogContent>  
+                </Dialog>                          
             </div>
         );
     }
