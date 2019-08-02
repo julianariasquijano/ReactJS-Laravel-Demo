@@ -32,7 +32,6 @@ class RoomController extends Controller
 
     public function indexByHotel($id)
     {
-        ini_set('display_errors', '1');error_reporting(E_ALL);
         $record = Room::whereHotel_id($id)->get();
         return RoomResource::collection($record);
     }
