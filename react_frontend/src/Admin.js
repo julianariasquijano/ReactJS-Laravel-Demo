@@ -45,7 +45,6 @@ export default function Admin() {
           <Tab label="Hotels" />
           <Tab label="Room Types" />
           <Tab label="Prices List" />
-          <Tab label="Calendar" />
         </Tabs>
       </AppBar>
       {value === 0 && <TabContainer> <Hotels></Hotels> </TabContainer>}
