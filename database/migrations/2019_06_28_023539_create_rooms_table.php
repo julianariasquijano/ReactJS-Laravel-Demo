@@ -16,8 +16,8 @@ class CreateRoomsTable extends Migration
         Schema::create('rooms', function (Blueprint $table) {
             $table->bigIncrements('id');
 
-            $table->string('hotel_id')
-                ->references('id')
+            $table->bigInteger('hotel_id')->unsigned();
+            $table->foreign('hotel_id')->references('id')
                 ->on('hotels')
                 ->onDelete('cascade');
 

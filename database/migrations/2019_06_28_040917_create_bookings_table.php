@@ -16,10 +16,10 @@ class CreateBookingsTable extends Migration
         Schema::create('bookings', function (Blueprint $table) {
             $table->bigIncrements('id');
 
-            $table->string('room_id')
-                ->references('id')
-                ->on('rooms')
-                ->onDelete('cascade');
+            $table->bigInteger('room_id')->unsigned();
+            $table->foreign('room_id')->references('id')
+            ->on('rooms')
+            ->onDelete('cascade');                
 
             $table->date('date_start');
             $table->date('date_end');
