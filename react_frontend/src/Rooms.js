@@ -202,7 +202,7 @@ class Rooms extends Component {
     render(){
 
         if(this.state.selectedRoom !== 0){
-            return(<div><Bookings doubleReturnFunction={this.state.returnFunction} returnFunction={this.hideBookings} room={this.state.selectedRoom}></Bookings></div>)
+            return(<div><Bookings doubleReturnFunction={this.state.returnFunction} returnFunction={this.hideBookings} hotel={this.state.hotel} room={this.state.selectedRoom}></Bookings></div>)
         }                
         return (
             <div>

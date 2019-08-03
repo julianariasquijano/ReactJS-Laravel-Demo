@@ -51,7 +51,9 @@ class Bookings extends Component {
             rows:[],
             detailsOpened:false,
             validationMessages:{},
+            hotel:props.hotel,
             room:props.room,
+            prices:[],
             returnFunction:props.returnFunction,
             doubleReturnFunction:props.doubleReturnFunction,
             dateStart:null,
@@ -80,6 +82,23 @@ class Bookings extends Component {
             });
             this.setState({rows:tempRows,loadingData:false})
             this.updateSchedulerEvents()
+          })
+          .catch(ex => this.setState({connectionError:true,loadingData:false}));
+
+        fetch(Config.api + '/prices_by_hotel/'+this.state.hotel.id)
+          .then(response => response.json())
+          .then(jsonObject => {
+            //Asigning each element the position in array, in order to facilitate the automatic edition  
+            let rows = jsonObject.data
+            let tempRows = []
+            let elementCounter = 0;
+            rows.forEach(element => {
+                element.position = elementCounter
+                element.image=''
+                tempRows.push(element)
+                elementCounter++
+            });
+            this.setState({prices:tempRows,loadingData:false})
           })
           .catch(ex => this.setState({connectionError:true,loadingData:false}));
 
@@ -275,6 +294,18 @@ class Bookings extends Component {
         this.setState({schedulerView:false})
     }
 
+    getPriceValue = (hotel_id,room_type_id,total_nights) => {
+
+        let label = 'Price NOT FOUND'
+        this.state.prices.forEach(element => {
+            if(element.hotel_id.toString() === hotel_id.toString() && element.room_type_id.toString() === room_type_id.toString() ){
+                label = 'USD $ ' + (element.price * total_nights).toLocaleString()
+            }
+        })
+        return label
+
+    }
+
     render(){
 
         return (
@@ -327,6 +358,7 @@ class Bookings extends Component {
                                 <TableCell>End Date</TableCell>
                                 <TableCell>Customer</TableCell>
                                 <TableCell>Nights</TableCell>
+                                <TableCell>Price</TableCell>
                                 <TableCell></TableCell>
                             </TableRow>
                         </TableHead>
@@ -345,6 +377,9 @@ class Bookings extends Component {
                                 <TableCell component="th" scope="row">
                                     {row.total_nights}
                                 </TableCell>
+                                <TableCell component="th" scope="row">
+                                    {this.getPriceValue(this.state.room.room_type_id,this.state.hotel.id,row.total_nights)}
+                                </TableCell>                                
                                 <TableCell >
                                     <Fab id={row.id}
                                         size='small'

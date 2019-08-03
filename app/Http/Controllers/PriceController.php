@@ -31,6 +31,20 @@ class PriceController extends Controller
      * @return \Illuminate\Http\Response
      */
 
+
+    /**
+     * Display a listing of the resource filtered by hotel.
+     *
+     * @return \Illuminate\Http\Response
+     */
+
+    public function indexByHotel($id)
+    {
+        $record = Price::whereHotel_id($id)->get();
+        return PriceResource::collection($record);
+    }
+
+
     public function store(Request $request)
 
     {

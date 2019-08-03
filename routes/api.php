@@ -40,6 +40,7 @@ Route::put('room/{id}', 'RoomController@update');
 Route::delete('room/{id}', 'RoomController@destroy');
 
 Route::get('prices', 'PriceController@index');
+Route::get('prices_by_hotel/{id}', 'PriceController@indexByHotel');
 Route::get('price/{id}', 'PriceController@show');
 Route::post('price', 'PriceController@store');
 Route::put('price/{id}', 'PriceController@update');
