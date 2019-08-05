@@ -339,10 +339,11 @@ class Bookings extends Component {
 
     getPriceValue = (hotel_id,room_type_id,total_nights) => {
 
-        let label = 'Price NOT FOUND'
-        this.state.prices.forEach(element => {
-            if(element.hotel_id.toString() === hotel_id.toString() && element.room_type_id.toString() === room_type_id.toString() ){
-                label = 'USD $ ' + (element.price * total_nights).toLocaleString()
+        let label = 'Price NOT SET'
+        this.state.prices.forEach(priceElement => {
+            console.log(priceElement.hotel_id.toString() + '-' +hotel_id.toString())
+            if(priceElement.hotel_id.toString() === hotel_id.toString() && priceElement.room_type_id.toString() === room_type_id.toString() ){
+                label = 'USD $ ' + (priceElement.price * total_nights).toLocaleString()
             }
         })
         return label
@@ -421,7 +422,7 @@ class Bookings extends Component {
                                     {row.total_nights}
                                 </TableCell>
                                 <TableCell component="th" scope="row">
-                                    {this.getPriceValue(this.state.room.room_type_id,this.state.hotel.id,row.total_nights)}
+                                    {this.getPriceValue(this.state.hotel.id,this.state.room.room_type_id,row.total_nights)}
                                 </TableCell>                                
                                 <TableCell >
                                     <Fab id={row.id}
