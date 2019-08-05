@@ -1,7 +1,5 @@
 
 import React,{Component} from 'react';
-import clsx from 'clsx';
-import { makeStyles } from '@material-ui/core/styles';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Snackbar from '@material-ui/core/Snackbar';
 import SnackbarContent from '@material-ui/core/SnackbarContent';
@@ -15,6 +13,8 @@ import Button from '@material-ui/core/Button';
 import Fab from '@material-ui/core/Fab';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
+import DialogActions from '@material-ui/core/DialogActions';
+import DeleteIcon from '@material-ui/icons/Delete';
 import AddIcon from '@material-ui/icons/Add';
 import EditIcon from '@material-ui/icons/Edit';
 import DetailIcon from '@material-ui/icons/RadioButtonChecked';
@@ -37,7 +37,9 @@ class Hotels extends Component {
             rows:[],
             detailsOpened:false,
             validationMessages:{},
-            selectedHotel:0
+            selectedHotel:0,
+            deleteConfirmationOpened:false,
+            selectedRowForDeletion:{}
 
         }
 
@@ -66,6 +68,7 @@ class Hotels extends Component {
         event.persist()
         actualData[event.target.name]= event.target.value
     }
+
     openDetails = () => {
         actualData= {id:0}
         this.setState({
@@ -83,6 +86,46 @@ class Hotels extends Component {
         this.resetValidationMessages()
         this.setState({
             detailsOpened:false,
+        })
+    }
+    deleteRowRemote = () => {
+        let url = Config.api + '/hotel/'+ this.state.selectedRowForDeletion.id
+        this.setState({loadingData:true})
+        fetch(url, {method: 'DELETE'})
+            .then(response => response.json())
+            .then(jsonObject => {
+                this.setState({loadingData:false})
+            })        
+            .then(response => this.deleteRow(this.state.selectedRowForDeletion.id))      
+    }
+
+    deleteRow = (id) => {
+        let newRows = []
+        let position = 0
+        this.state.rows.forEach(element => {
+            if (id.toString() !== element.id.toString()) {
+                element.position = position
+                newRows.push(element)
+                position++
+            }
+        });
+
+        this.setState({
+            deleteConfirmationOpened:false,
+            rows:JSON.parse(JSON.stringify(newRows))
+        })
+    }
+
+    openDeleteConfirmation = (row) => {
+        this.setState({
+            deleteConfirmationOpened:true,
+            selectedRowForDeletion:row,
+        })
+    }
+
+    closeDeleteConfirmation = () => {
+        this.setState({
+            deleteConfirmationOpened:false,
         })
     }
     resetValidationMessages = () => {
@@ -259,6 +302,15 @@ class Hotels extends Component {
                                     >
                                         <DetailIcon/>
                                     </Fab>
+                                    &nbsp;&nbsp;
+                                    <Fab id={row.id}
+                                        size='small'
+                                        variant="round" 
+                                        color='secondary' 
+                                        onClick={() => {this.openDeleteConfirmation(row)}} 
+                                    >
+                                        <DeleteIcon/>
+                                    </Fab>
                                 </TableCell>
                             </TableRow>
                             ))}
@@ -338,7 +390,25 @@ class Hotels extends Component {
                         </span>
 
                     </DialogContent>
-                </Dialog>          
+                </Dialog>   
+                <Dialog open={this.state.deleteConfirmationOpened} onClose={this.closeDeleteConfirmation}  >
+                    <DialogContent>
+                            <h2>Delete the Hotel <span style={{color:'coral'}}>{this.state.selectedRowForDeletion.name}</span> and dependent information ?</h2>
+                    </DialogContent>
+                    <DialogActions>
+                    <span className='controlWraperStyle'  >
+                            <Button variant="contained" color="primary" onClick={this.deleteRowRemote}>
+                                DELETE
+                            </Button>
+                        </span>
+                        <span className='controlWraperStyle' >
+                            <Button variant="contained" color="secondary" onClick={this.closeDeleteConfirmation} >
+                                Cancel
+                            </Button>
+                        </span>   
+                    </DialogActions>                    
+                </Dialog>                
+
             </div>
         );
     }

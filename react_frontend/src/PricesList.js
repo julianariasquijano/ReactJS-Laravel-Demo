@@ -13,7 +13,8 @@ import Button from '@material-ui/core/Button';
 import Fab from '@material-ui/core/Fab';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
-
+import DialogActions from '@material-ui/core/DialogActions';
+import DeleteIcon from '@material-ui/icons/Delete';
 import AddIcon from '@material-ui/icons/Add';
 import EditIcon from '@material-ui/icons/Edit';
 
@@ -45,6 +46,8 @@ class PricesList extends Component {
             hotels:[],
             selectedRoomType:0,
             selectedHotel:0,
+            deleteConfirmationOpened:false,
+            selectedRowForDeletion:{}
         }
 
     }
@@ -115,6 +118,46 @@ class PricesList extends Component {
             detailsOpened:false,
         })
     }
+    deleteRowRemote = () => {
+        let url = Config.api + '/price/'+ this.state.selectedRowForDeletion.id
+        this.setState({loadingData:true})
+        fetch(url, {method: 'DELETE'})
+            .then(response => response.json())
+            .then(jsonObject => {
+                this.setState({loadingData:false})
+            })        
+            .then(response => this.deleteRow(this.state.selectedRowForDeletion.id))      
+    }
+
+    deleteRow = (id) => {
+        let newRows = []
+        let position = 0
+        this.state.rows.forEach(element => {
+            if (id.toString() !== element.id.toString()) {
+                element.position = position
+                newRows.push(element)
+                position++
+            }
+        });
+
+        this.setState({
+            deleteConfirmationOpened:false,
+            rows:JSON.parse(JSON.stringify(newRows))
+        })
+    }
+
+    openDeleteConfirmation = (row) => {
+        this.setState({
+            deleteConfirmationOpened:true,
+            selectedRowForDeletion:row,
+        })
+    }
+
+    closeDeleteConfirmation = () => {
+        this.setState({
+            deleteConfirmationOpened:false,
+        })
+    }    
     resetValidationMessages = () => {
         validationMessages = {
             hotel_id:'',
@@ -275,6 +318,15 @@ class PricesList extends Component {
                                     >
                                         <EditIcon/>
                                     </Fab>
+                                    &nbsp;&nbsp;
+                                    <Fab id={row.id}
+                                        size='small'
+                                        variant="round" 
+                                        color='secondary' 
+                                        onClick={() => {this.openDeleteConfirmation(row)}} 
+                                    >
+                                        <DeleteIcon/>
+                                    </Fab>                                    
                                 </TableCell>
                             </TableRow>
                             ))}
@@ -353,7 +405,24 @@ class PricesList extends Component {
                             </FormControl>
                         </div>
                     </DialogContent>
-                </Dialog>          
+                </Dialog> 
+                <Dialog open={this.state.deleteConfirmationOpened} onClose={this.closeDeleteConfirmation}  >
+                    <DialogContent>
+                            <h2>Delete Price <span style={{color:'coral'}}>USD ${this.state.selectedRowForDeletion.price}</span> and dependent information ?</h2>
+                    </DialogContent>
+                    <DialogActions>
+                    <span className='controlWraperStyle'  >
+                            <Button variant="contained" color="primary" onClick={this.deleteRowRemote}>
+                                DELETE
+                            </Button>
+                        </span>
+                        <span className='controlWraperStyle' >
+                            <Button variant="contained" color="secondary" onClick={this.closeDeleteConfirmation} >
+                                Cancel
+                            </Button>
+                        </span>   
+                    </DialogActions>                    
+                </Dialog>                                 
             </div>
         );
     }
