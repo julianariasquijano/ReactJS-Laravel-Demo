@@ -35,7 +35,7 @@ class RoomTypeController extends Controller
 
     {
         $validator=Validator::make($request->input(), [
-            'type' => 'required|min:2',
+            'type' => 'required|min:1',
         ]);
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()])->setStatusCode(400);
@@ -86,7 +86,7 @@ class RoomTypeController extends Controller
     {
         $validator=Validator::make(array_add($request->input(),'id',$id), [
             'id' => 'required|integer',
-            'type' => 'required|min:2',
+            'type' => 'required|min:1',
         ]);
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()])->setStatusCode(400);

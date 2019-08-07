@@ -46,7 +46,7 @@ class RoomController extends Controller
 
     {
         $validator=Validator::make($request->input(), [
-            'name' => 'required|min:2',
+            'name' => 'required|min:1',
             'hotel_id' => 'required|integer',
             'room_type_id' => 'required|integer',
         ]);
@@ -106,7 +106,7 @@ class RoomController extends Controller
 
         $validator=Validator::make(array_add($request->input(),'id',$id), [
             'id' => 'required|integer',
-            'name' => 'required|min:2',
+            'name' => 'required|min:1',
             'hotel_id' => 'required|integer',
             'room_type_id' => 'required|integer',
         ]);
