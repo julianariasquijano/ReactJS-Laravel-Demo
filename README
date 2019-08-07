@@ -1,0 +1,21 @@
+Bookings Administration
+
+Laravel + Reactjs
+
+API REST Start:
+In this directory Just run:
+	 composer install
+	 (set DB credentials in .env file)
+	 artisan migrate
+	 artisan db:seed  (Optional)
+	 artisan serve
+
+
+
+Frontend
+	cd react_frontend
+	npm install
+	npm start
+
+
+Access app in : "http://localhost:3000/"
