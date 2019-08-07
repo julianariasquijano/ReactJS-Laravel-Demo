@@ -8,7 +8,6 @@ use App\Http\Resources\RoomResource;
 use App\Room;
 
 
-
 class RoomController extends Controller
 
 {
@@ -60,7 +59,7 @@ class RoomController extends Controller
         $record->hotel_id = $request->input('hotel_id');
         $record->room_type_id = $request->input('room_type_id');
         $record->name = $request->input('name');
-        $record->image = $request->input('image');
+        $record->image =  file_get_contents('php://input');
 
         $record->save();
 
@@ -120,7 +119,7 @@ class RoomController extends Controller
         $record->hotel_id = $request->input('hotel_id');
         $record->room_type_id = $request->input('room_type_id');
         $record->name = $request->input('name');
-        $record->image = $request->input('image');
+        $record->image =  file_get_contents('php://input');
 
         $record->save();
 

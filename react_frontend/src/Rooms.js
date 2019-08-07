@@ -35,6 +35,7 @@ import Config from './Config'
 let actualData={}
 let lastRowIdUpdated=0
 let validationMessages={}
+let imageData=''
 
 class Rooms extends Component {
 
@@ -67,7 +68,6 @@ class Rooms extends Component {
             let elementCounter = 0;
             rows.forEach(element => {
                 element.position = elementCounter
-                element.image=''
                 tempRows.push(element)
                 elementCounter++
             });
@@ -94,6 +94,7 @@ class Rooms extends Component {
         })
       }    
     openDetails = () => {
+        imageData = ''
         actualData= {id:0,room_type_id:0,hotel_id:this.state.hotel.id}
         this.setState({
             detailsOpened:true,
@@ -188,11 +189,14 @@ class Rooms extends Component {
 
         this.setState({loadingData:true})
 
-        url += '?' + Object.keys(actualData)
-          .map(key => `${key}=${actualData[key].toString()}`)
+        let tempActualData = JSON.parse(JSON.stringify(actualData))
+        tempActualData.image = '' //Because the image really will go in the body and not as query parameter
+
+        url += '?' + Object.keys(tempActualData)
+          .map(key => `${key}=${tempActualData[key].toString()}`)
           .join('&');
 
-        fetch(url, {method: method})
+        fetch(url, {method: method,body:imageData})
             .then(response => response.json())
             .then(jsonObject => {
             //lastRowIdUpdated is used to correctly edit a recently created row
@@ -203,6 +207,7 @@ class Rooms extends Component {
 
     saveRow = () => {
         let tempRows = JSON.parse(JSON.stringify(this.state.rows))
+        actualData.image = imageData
         if(actualData.id ===0){
             actualData.position = this.state.rows.length
             actualData.id = lastRowIdUpdated
@@ -211,7 +216,7 @@ class Rooms extends Component {
         else {
             tempRows[actualData.position] = JSON.parse(JSON.stringify(actualData))
         }
-
+        
         this.setState({
             detailsOpened:false,
             rows:JSON.parse(JSON.stringify(tempRows))
@@ -241,6 +246,18 @@ class Rooms extends Component {
         this.setState({
             selectedRoom:0
         })
+    }
+    
+    handleCapture = ({ target }) => {
+        const fileReader = new FileReader();
+        if (target.files[0].size > 427221) {
+            alert('Error: Size greater than 430kb')
+            return
+        }
+        fileReader.readAsDataURL(target.files[0]);
+        fileReader.onload = (e) => {
+            imageData = e.target.result
+        }
     }    
 
     render(){
@@ -281,6 +298,7 @@ class Rooms extends Component {
                     <Table >
                         <TableHead>
                             <TableRow>
+                                <TableCell>Image</TableCell>
                                 <TableCell>Room</TableCell>
                                 <TableCell>Type</TableCell>
                                 <TableCell></TableCell>
@@ -289,6 +307,9 @@ class Rooms extends Component {
                         <TableBody>
                             {this.state.rows.map(row => (
                             <TableRow key={row.position}>
+                                <TableCell component="th" scope="row">
+                                    <img src={row.image} width='100px' height='100px' /> 
+                                </TableCell>
                                 <TableCell component="th" scope="row">
                                     {row.name}
                                 </TableCell>
@@ -385,6 +406,21 @@ class Rooms extends Component {
                                 </Select>
                             </FormControl>
                         </div>
+                        <br/>
+                        <Button
+                            variant="contained"
+                            component="label"
+                            >
+                            Upload JPG Image
+                            <input
+                                id="image"
+                                type="file"
+                                accept="image/jpeg"
+                                style={{ display: "none" }}
+                                onChange={this.handleCapture}
+                            />
+                        </Button>
+
                     </DialogContent>
                 </Dialog>  
                 <Dialog open={this.state.deleteConfirmationOpened} onClose={this.closeDeleteConfirmation}  >
