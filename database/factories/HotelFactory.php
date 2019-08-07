@@ -7,7 +7,7 @@ use Faker\Generator as Faker;
 
 $factory->define(Hotel::class, function (Faker $faker) {
 
-    App\Hotel::truncate();
+    //App\Hotel::truncate();
 
     return [
         'id' => 1,

@@ -6,7 +6,7 @@ use App\RoomType;
 use Faker\Generator as Faker;
 
 $factory->define(RoomType::class, function (Faker $faker) {
-    App\RoomType::truncate();
+    //App\RoomType::truncate();
     return [
         'id' => 1,
         'type' => 'Suite'
