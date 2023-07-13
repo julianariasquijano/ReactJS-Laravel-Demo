@@ -5,6 +5,23 @@ Proof of concept using ReactJS with Material UI, Laravel and DevExpress componen
 
 <b>DISCLAIMER:</b> This demo is free software but the DevExpress components are NOT free software. The use of DevExpress components requires a paid license which can be obtained in https://js.devexpress.com/Overview/React/
 
+## Run de project
+
+- PHP Laravel Framework API REST Backend:
+```
+         composer install
+         (set DB credentials in .env file)
+         artisan migrate
+         artisan db:seed  (this command is optional)
+         artisan serve   (should run in port 8000)
+```
+- Javascript (NodeJs) React JS library Frontend:
+```
+        cd react_frontend
+        npm install
+        npm start
+```
+
 ## Screenshots
 
 <table>
